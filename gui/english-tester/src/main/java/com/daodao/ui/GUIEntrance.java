@@ -1,4 +1,4 @@
-package com.daodao;
+package com.daodao.ui;
 
 import java.awt.EventQueue;
 
