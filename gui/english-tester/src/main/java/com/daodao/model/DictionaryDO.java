@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dictionary", catalog = "englishtester")
+@Table(name = "dictionary", catalog = "app")
 public class DictionaryDO implements Serializable {
 
 	/**

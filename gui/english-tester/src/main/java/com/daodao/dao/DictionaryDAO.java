@@ -1,7 +1,12 @@
 package com.daodao.dao;
 
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import com.daodao.model.DictionaryDO;
 
-public class DictionaryDAO extends HibernateTemplate {
+public class DictionaryDAO extends AbstractDAO<Long, DictionaryDO> {
+
+	@Override
+	protected String getTableName() {
+		return this.getClass().getName();
+	}
 
 }
