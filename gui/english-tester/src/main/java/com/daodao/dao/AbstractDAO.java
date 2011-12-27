@@ -44,7 +44,7 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 			return null;
 		}
 		String hql = "select model from " + getTableName()
-				+ " model where id = " + id;
+				+ " model where model.id = " + id;
 		List<V> temp = getHibernateTemplate().find(hql);
 		if (temp == null || temp.size() == 0) {
 			return null;

@@ -4,11 +4,11 @@
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd" default-autowire="byName">
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"></property>
-		<property name="url" value="jdbc:derby:c:/englishtester;create=true"></property>
+		<property name="url" value="jdbc:derby:derbyDB;create=true"></property>
 	</bean>
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
@@ -39,4 +39,6 @@
     	<property name="sessionFactory" ref="sessionFactory"></property>
     </bean>
     <bean id="dictionaryDAO" class="com.daodao.dao.DictionaryDAO" parent="abstractDAO"></bean>
+    
+    <bean id="databaseInit" class="com.daodao.tools.DatabaseInit"></bean>
 </beans>

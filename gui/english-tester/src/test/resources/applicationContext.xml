@@ -8,7 +8,7 @@
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"></property>
-		<property name="url" value="jdbc:derby:c:/englishtester;create=true"></property>
+		<property name="url" value="jdbc:derby:derbyDB;create=true"></property>
 	</bean>
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
@@ -21,7 +21,7 @@
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">
-					org.hibernate.dialect.MySQLDialect
+					org.hibernate.dialect.DerbyDialect
 				</prop>
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
 				<prop key="hibernate.show_sql">true</prop>
@@ -39,4 +39,8 @@
     	<property name="sessionFactory" ref="sessionFactory"></property>
     </bean>
     <bean id="dictionaryDAO" class="com.daodao.dao.DictionaryDAO" parent="abstractDAO"></bean>
+    
+    <bean id="databaseInit" class="com.daodao.tools.DatabaseInit">
+    	<property name="dataSource" ref="dataSource"></property>
+    </bean>
 </beans>

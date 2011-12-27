@@ -6,7 +6,7 @@ public class DictionaryDAO extends AbstractDAO<Long, DictionaryDO> {
 
 	@Override
 	protected String getTableName() {
-		return this.getClass().getName();
+		return DictionaryDO.class.getName();
 	}
 
 }
