@@ -12,6 +12,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -22,102 +24,87 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author zhjdenis
  * 
  */
-public class DatabaseInit implements BeanFactoryAware
-{
+public class DatabaseInit implements BeanFactoryAware {
 
-    private DataSource dataSource;
+	private DataSource dataSource;
+	private static final Logger logger = LoggerFactory
+			.getLogger(DatabaseInit.class);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org
-     * .springframework.beans.factory.BeanFactory)
-     */
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException
-    {
-        if (!initDB())
-        {
-            throw new BootstrapException("Error in init database");
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org
+	 * .springframework.beans.factory.BeanFactory)
+	 */
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		if (!initDB()) {
+			throw new BootstrapException("Error in init database");
+		}
+	}
 
-    private boolean initDB()
-    {
-        Connection conn = null;
-        try
-        {
-            conn = dataSource.getConnection();
-            String sql = "select * from dictionary";
-            conn.createStatement().executeQuery(sql);
-        }
-        catch (SQLException e)
-        {
-             e.printStackTrace();
-            try
-            {
+	private boolean initDB() {
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			String sql = "select * from dictionary";
+			conn.createStatement().executeQuery(sql);
+		} catch (SQLException e) {
+			// e.printStackTrace();
+			logger.info("the database exist");
+			try {
 
-                InputStream input = this.getClass().getClassLoader()
-                        .getResourceAsStream("create.sql");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                String line = null;
-                while ((line = reader.readLine()) != null)
-                {
-                    conn.createStatement().execute(line);
-                }
-                return true;
-            }
-            catch (IOException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                return false;
-            }
-            catch (SQLException e1)
-            {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                return false;
-            }
+				InputStream input = this.getClass().getClassLoader()
+						.getResourceAsStream("create.sql");
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(input));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					conn.createStatement().execute(line);
+				}
+				return true;
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				logger.error("error", e1);
+				return false;
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+				logger.error("error", e1);
+				return false;
+			}
 
-        }
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * @return the dataSource
-     */
-    public DataSource getDataSource()
-    {
-        return dataSource;
-    }
+	/**
+	 * @return the dataSource
+	 */
+	public DataSource getDataSource() {
+		return dataSource;
+	}
 
-    /**
-     * @param dataSource
-     *            the dataSource to set
-     */
-    public void setDataSource(DataSource dataSource)
-    {
-        this.dataSource = dataSource;
-    }
+	/**
+	 * @param dataSource
+	 *            the dataSource to set
+	 */
+	public void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
 
-    public static void main(String[] args)
-    {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-        context.start();
-        while (true)
-        {
-            try
-            {
-                Thread.sleep(100000);
-            }
-            catch (InterruptedException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
+	public static void main(String[] args) {
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+				"applicationContext.xml");
+		context.start();
+		while (true) {
+			try {
+				Thread.sleep(100000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 }
