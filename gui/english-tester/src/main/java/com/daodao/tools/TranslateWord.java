@@ -32,7 +32,7 @@ public class TranslateWord {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
 				"applicationContext.xml");
 		dictionaryDAO = (DictionaryDAO) context.getBean("dictionaryDAO");
-		youdaoAPI("IELTS.txt");
+		youdaoAPI("sample_IELTS.txt");
 	}
 
 	public static void youdaoAPI(String fileName) {
@@ -47,37 +47,35 @@ public class TranslateWord {
 			while ((word = reader.readLine()) != null) {
 				HttpGet request = new HttpGet(YOUDAO_URL + word);
 				HttpResponse response = client.execute(request);
-				// Gson gson = new Gson();
-				// Type listType = new TypeToken<Map<Object, Object>>() {
-				// }.getType();
-				// Map<String, Object> obj = gson.fromJson(
-				// EntityUtils.toString(response.getEntity()), listType);
-				String content = EntityUtils.toString(response.getEntity());
-				// System.out.println(content);
-				JSONObject jsonAll = JSONObject.fromObject(content);
-				JSONObject basicObj = jsonAll.getJSONObject("basic");
-				String phonetic = basicObj.getString("phonetic");
-				JSONArray explains = basicObj.getJSONArray("explains");
-				StringBuilder explainStr = new StringBuilder();
-				for (int index = 0; index < explains.size(); index++) {
-					explainStr.append(explains.get(index));
+				try {
+					String content = EntityUtils.toString(response.getEntity());
+					JSONObject jsonAll = JSONObject.fromObject(content);
+					JSONObject basicObj = jsonAll.getJSONObject("basic");
+					// String phonetic = basicObj.getString("phonetic");
+					JSONArray explains = basicObj.getJSONArray("explains");
+					StringBuilder explainStr = new StringBuilder();
+					for (int index = 0; index < explains.size(); index++) {
+						explainStr.append(explains.get(index));
+					}
+					System.out.println(word + "\t" + explainStr.toString());
+					DictionaryDO dictionaryDO = new DictionaryDO();
+					dictionaryDO.setAccurate(0);
+					dictionaryDO.setEn(word);
+					dictionaryDO.setSource(fileName);
+					dictionaryDO.setZh(explainStr.toString());
+					System.out.println(dictionaryDAO.saveEntity(dictionaryDO));
+					// api request limit under 1000 times
+					Thread.sleep(6000);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.out.println("Error in " + word);
+					continue;
 				}
-				System.out.println(word + "\t" + phonetic + "\t"
-						+ explainStr.toString());
-				DictionaryDO dictionaryDO = new DictionaryDO();
-				dictionaryDO.setAccurate(0);
-				dictionaryDO.setEn(word);
-				dictionaryDO.setSource(fileName);
-				dictionaryDO.setZh(explainStr.toString());
-				System.out.println(dictionaryDAO.saveEntity(dictionaryDO));
-				// api request limit under 1000 times
-				Thread.sleep(6000);
 			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			if (client != null) {
