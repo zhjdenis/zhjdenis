@@ -11,12 +11,12 @@ import java.lang.annotation.Target;
 
 /**
  * @author zhjdenis
- *
+ * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Inherited
 public @interface DaoDaoDBConnection {
 
-    String value();
+	String value();
 }

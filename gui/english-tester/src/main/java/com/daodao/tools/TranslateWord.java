@@ -3,6 +3,11 @@ package com.daodao.tools;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -24,6 +29,8 @@ public class TranslateWord {
 
 	private static DictionaryDAO dictionaryDAO;
 
+	private static DataSource dataSource;
+
 	/**
 	 * @param args
 	 */
@@ -32,7 +39,28 @@ public class TranslateWord {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
 				"applicationContext.xml");
 		dictionaryDAO = (DictionaryDAO) context.getBean("dictionaryDAO");
-		youdaoAPI("sample_IELTS.txt");
+		dataSource = (DataSource) context.getBean("dataSource1");
+		// youdaoAPI("sample_IELTS.txt");
+		synchronizeData();
+	}
+
+	public static void synchronizeData() {
+		try {
+			Connection conn = dataSource.getConnection();
+			ResultSet rs = conn.createStatement().executeQuery(
+					"select en,source,zh from app.dictionary");
+			while (rs.next()) {
+				DictionaryDO dictionaryDO = new DictionaryDO();
+				dictionaryDO.setAccurate(0);
+				dictionaryDO.setEn(rs.getString("en"));
+				dictionaryDO.setSource(rs.getString("source"));
+				dictionaryDO.setZh(rs.getString("zh"));
+				dictionaryDAO.saveEntity(dictionaryDO);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void youdaoAPI(String fileName) {
@@ -64,7 +92,7 @@ public class TranslateWord {
 					} else {
 						explainStr.append(jsonAll.getString("translation"));
 					}
-					System.out.println(word + "\t" + explainStr.toString());
+					// System.out.println(word + "\t" + explainStr.toString());
 					DictionaryDO dictionaryDO = new DictionaryDO();
 					dictionaryDO.setAccurate(0);
 					dictionaryDO.setEn(word);
@@ -75,8 +103,8 @@ public class TranslateWord {
 					Thread.sleep(4000);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
-					System.out.println("Error in " + word);
+					// e.printStackTrace();
+					System.err.println("Error in " + word);
 					continue;
 				}
 			}
