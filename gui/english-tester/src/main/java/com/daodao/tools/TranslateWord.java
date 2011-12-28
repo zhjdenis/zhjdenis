@@ -45,17 +45,24 @@ public class TranslateWord {
 			String word = null;
 			client = new DefaultHttpClient();
 			while ((word = reader.readLine()) != null) {
+				if (word.indexOf(" ") != -1) {
+					word = word.replaceAll(" ", "%20");
+				}
 				HttpGet request = new HttpGet(YOUDAO_URL + word);
 				HttpResponse response = client.execute(request);
 				try {
 					String content = EntityUtils.toString(response.getEntity());
 					JSONObject jsonAll = JSONObject.fromObject(content);
-					JSONObject basicObj = jsonAll.getJSONObject("basic");
 					// String phonetic = basicObj.getString("phonetic");
-					JSONArray explains = basicObj.getJSONArray("explains");
 					StringBuilder explainStr = new StringBuilder();
-					for (int index = 0; index < explains.size(); index++) {
-						explainStr.append(explains.get(index));
+					if (jsonAll.containsKey("basic")) {
+						JSONObject basicObj = jsonAll.getJSONObject("basic");
+						JSONArray explains = basicObj.getJSONArray("explains");
+						for (int index = 0; index < explains.size(); index++) {
+							explainStr.append(explains.get(index));
+						}
+					} else {
+						explainStr.append(jsonAll.getString("translation"));
 					}
 					System.out.println(word + "\t" + explainStr.toString());
 					DictionaryDO dictionaryDO = new DictionaryDO();
@@ -65,7 +72,7 @@ public class TranslateWord {
 					dictionaryDO.setZh(explainStr.toString());
 					System.out.println(dictionaryDAO.saveEntity(dictionaryDO));
 					// api request limit under 1000 times
-					Thread.sleep(6000);
+					Thread.sleep(4000);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
