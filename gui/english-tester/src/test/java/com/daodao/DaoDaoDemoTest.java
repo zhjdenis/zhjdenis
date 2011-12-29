@@ -20,6 +20,7 @@ public class DaoDaoDemoTest extends DaoDaoTest
    
     @Test
     @DaoDaoDBConnection("zhjut")
+    @DaoDaoDBDataSet(locations={"test.ds"})
     public void test() throws SQLException
     {
         String sql = "select count(*) from t_zhj_ut";
