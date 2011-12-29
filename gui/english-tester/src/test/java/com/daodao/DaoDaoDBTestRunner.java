@@ -49,15 +49,18 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner {
 		DaoDaoDBConnection dbconnection = method
 				.getAnnotation(DaoDaoDBConnection.class);
 		String conKey = dbconnection.value();
+		//default value is false
+		boolean autoCommit = dbconnection.isAutoCommit();
 		if (!connections.containsKey(conKey) || connections.get(conKey) == null) {
 			Description description = methodDescription(method);
 			testAborted(notifier, description, new DaoDaoDBTestException(
 					"Empty"));
 		} else {
-
 			Description description = methodDescription(method);
-			Object test;
+			Object test = null;
+			Connection currentCon = connections.get(conKey);
 			try {
+			    currentCon.setAutoCommit(autoCommit);
 				test = createTest();
 				getTestClass().getJavaClass().getDeclaredField("conn")
 						.set(test, connections.get(conKey));
@@ -70,6 +73,15 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner {
 			}
 			TestMethod testMethod = wrapMethod(method);
 			new MethodRoadie(test, testMethod, notifier, description).run();
+			//rollback after every test
+			try
+            {
+                currentCon.rollback();
+            }
+            catch (SQLException e)
+            {
+                testAborted(notifier, description, e);
+            }
 
 		}
 	}

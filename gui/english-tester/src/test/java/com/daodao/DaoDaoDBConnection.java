@@ -19,4 +19,5 @@ import java.lang.annotation.Target;
 public @interface DaoDaoDBConnection {
 
 	String value();
+	boolean isAutoCommit() default false;
 }
