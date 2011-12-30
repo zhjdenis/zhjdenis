@@ -19,4 +19,5 @@ import java.lang.annotation.Target;
 public @interface DaoDaoDBDataSet {
 
 	String[] locations();
+	DaoDaoDBDataSetOperation operation() default DaoDaoDBDataSetOperation.INSERT;
 }

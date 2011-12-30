@@ -2,3 +2,7 @@ create table dictionary (id bigint not null generated always as identity, en var
 create table exam (id bigint not null generated always as identity, description varchar(1000), options varchar(1000), date DATE,remain int,correct int,wrong int)
 create table exam_word (id bigint not null generated always as identity, en varchar(1000), zh varchar(1000), type varchar(100),source varchar(100),examId bigint)
 create table history_exam_word (id bigint not null generated always as identity, en varchar(1000), zh varchar(1000), type varchar(100),source varchar(100),examId bigint)
+alter table dictionary add primary key(id)
+alter table exam add primary key(id)
+alter table exam_word add primary key(id)
+alter table history_exam_word add primary key(id)

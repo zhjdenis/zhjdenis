@@ -1,9 +1,5 @@
-/**
- * 下午5:27:58
- */
 package com.daodao;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -19,7 +15,6 @@ import java.util.Properties;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.operation.DatabaseOperation;
 import org.junit.internal.runners.InitializationError;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.internal.runners.MethodRoadie;
@@ -29,7 +24,7 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
 /**
- * @author zhjdenis
+ * @author hzhou
  * 
  */
 public class DaoDaoDBTestRunner extends JUnit4ClassRunner
@@ -81,8 +76,8 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
        Connection conn = (Connection) connField.get(targetObj);
        String[] dsLocations = dsAnnotation.locations();
        for(String dsLocation : dsLocations) {
-          IDataSet ds = new FlatXmlDataSetBuilder().build(new FileInputStream("dataset.xml"));
-          DatabaseOperation.REFRESH.execute(new DatabaseConnection(conn), ds);
+          IDataSet ds = new FlatXmlDataSetBuilder().build(this.getClass().getClassLoader().getResource(dsLocation));
+          dsAnnotation.operation().getOp().execute(new DatabaseConnection(conn), ds);
        }
     }
     
@@ -168,6 +163,8 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
             {
                 connField.setAccessible(true);
             }
+            //erase the previous data
+            connections.get(conKey).rollback();
             connField.set(targetObj, connections.get(conKey));
         }
     }
@@ -180,6 +177,7 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
         {
             Object targetObj = createTest();
             injectConnection(method, targetObj);
+            injectData(method, targetObj);
             TestMethod testMethod = wrapMethod(method);
             new MethodRoadie(targetObj, testMethod, notifier, description).run();
         }
@@ -249,6 +247,7 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
             {
                 Class.forName(jdbcDriver);
                 Connection conn = DriverManager.getConnection(server, username, password);
+                conn.setAutoCommit(false);
                 connections.put(key, conn);
             }
             catch (ClassNotFoundException e)
