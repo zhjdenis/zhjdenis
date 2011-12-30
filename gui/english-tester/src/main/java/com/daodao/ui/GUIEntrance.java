@@ -1,6 +1,7 @@
 package com.daodao.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -28,6 +29,7 @@ public class GUIEntrance {
 	private JTextField qTwoAnswer;
 	private JTextField qThreeAnswer;
 	private JTextField qFourAnswer;
+	private JLabel qFiveWord;
 	private JLabel qOneWord;
 	private JLabel qTwoWord;
 	private JLabel qThreeWord;
@@ -36,6 +38,7 @@ public class GUIEntrance {
 	private JLabel qTwoStatus;
 	private JLabel qThreeStatus;
 	private JLabel qFourStatus;
+	private JTextField qFiveAnswer;
 
 	/**
 	 * Launch the application.
@@ -78,7 +81,7 @@ public class GUIEntrance {
 		borderLayout.setVgap(5);
 		borderLayout.setHgap(5);
 		frmEnglishTester.setTitle("English Tester");
-		frmEnglishTester.setBounds(100, 100, 500, 200);
+		frmEnglishTester.setBounds(100, 100, 602, 300);
 		frmEnglishTester.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -135,7 +138,7 @@ public class GUIEntrance {
 
 		JPanel panel = new JPanel();
 		frmEnglishTester.getContentPane().add(panel, BorderLayout.CENTER);
-		panel.setLayout(new GridLayout(4, 2, 5, 5));
+		panel.setLayout(new GridLayout(5, 2, 5, 5));
 
 		qOneWord = new JLabel("");
 		panel.add(qOneWord);
@@ -164,6 +167,13 @@ public class GUIEntrance {
 		qFourAnswer = new JTextField();
 		panel.add(qFourAnswer);
 		qFourAnswer.setColumns(10);
+
+		qFiveWord = new JLabel("");
+		panel.add(qFiveWord);
+
+		qFiveAnswer = new JTextField();
+		panel.add(qFiveAnswer);
+		qFiveAnswer.setColumns(10);
 
 		JPanel panel_1 = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel_1.getLayout();
@@ -228,8 +238,13 @@ public class GUIEntrance {
 		qThreeStatus = new JLabel("Correct");
 		panel_3.add(qThreeStatus);
 
-		qFourStatus = new JLabel("Correct");
+		qFourStatus = new JLabel("Wrong");
+		qFourStatus.setForeground(Color.RED);
 		panel_3.add(qFourStatus);
+
+		JLabel qFiveStatus = new JLabel("Correct");
+		qFiveStatus.setForeground(Color.GREEN);
+		panel_3.add(qFiveStatus);
 	}
 
 	/**

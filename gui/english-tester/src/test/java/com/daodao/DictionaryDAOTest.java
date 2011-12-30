@@ -3,6 +3,8 @@ package com.daodao;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,27 +16,38 @@ import com.daodao.model.DictionaryDO;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "../../applicationContext.xml" })
-public class DictionaryDAOTest
-{
+public class DictionaryDAOTest {
 
-    @Autowired
-    private DictionaryDAO dictionaryDAO;
+	@Autowired
+	private DictionaryDAO dictionaryDAO;
 
-    @Test
-    public void testSave()
-    {
-        DictionaryDO a = new DictionaryDO();
-        a.setEn("test1");
-        Long id = dictionaryDAO.saveEntity(a);
-        assertThat(id, greaterThan(0l));
-        System.out.println(id);
-        DictionaryDO b = dictionaryDAO.findById(id);
-        System.out.println(b.getEn());
-    }
-    
-    @Test
-    public void testFindById() {
-        DictionaryDO b = dictionaryDAO.findById(5L);
-        System.out.println(b.getEn());
-    }
+	@Test
+	public void testSave() {
+		DictionaryDO a = new DictionaryDO();
+		a.setEn("test1");
+		Long id = dictionaryDAO.saveEntity(a);
+		assertThat(id, greaterThan(0l));
+		System.out.println(id);
+		DictionaryDO b = dictionaryDAO.findById(id);
+		System.out.println(b.getEn());
+	}
+
+	@Test
+	public void testFindById() {
+		DictionaryDO b = dictionaryDAO.findById(5L);
+		System.out.println(b.getEn());
+	}
+
+	@Test
+	public void findNextRound() {
+		List<DictionaryDO> data = dictionaryDAO.findByFields(null, 0, 5);
+		for (DictionaryDO d : data) {
+			System.out.println(d.getId() + "\t" + d.getEn() + "\t" + d.getZh());
+		}
+		data = dictionaryDAO.findByFields(null, 5, 5);
+		for (DictionaryDO d : data) {
+			System.out.println(d.getId() + "\t" + d.getEn() + "\t" + d.getZh());
+		}
+	}
+
 }
