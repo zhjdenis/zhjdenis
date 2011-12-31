@@ -7,8 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,9 +20,16 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.daodao.model.ExamWordDO;
+import com.daodao.service.TesterService;
+
 public class GUIEntrance {
 
-	private Map<String, String> questions;
+	private List<ExamWordDO> questions;
+	private TesterService testerService;
 	private JFrame frmEnglishTester;
 	private JTextField qOneAnswer;
 	private JTextField qTwoAnswer;
@@ -67,8 +73,9 @@ public class GUIEntrance {
 	}
 
 	private void initializeData() {
-		questions = new HashMap<String, String>();
-
+		ApplicationContext context = new ClassPathXmlApplicationContext(
+				"applicationContext.xml");
+		testerService = (TesterService) context.getBean("testerService");
 	}
 
 	/**

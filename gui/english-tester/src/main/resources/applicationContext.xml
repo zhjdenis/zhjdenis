@@ -20,6 +20,9 @@
 		<property name="annotatedClasses">
 			<list>
 				<value>com.daodao.model.DictionaryDO</value>
+				<value>com.daodao.model.ExamDO</value>
+				<value>com.daodao.model.ExamWordDO</value>
+				<value>com.daodao.model.HistoryExamWordDO</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -43,6 +46,11 @@
     	<property name="sessionFactory" ref="sessionFactory"></property>
     </bean>
     <bean id="dictionaryDAO" class="com.daodao.dao.DictionaryDAO" parent="abstractDAO"></bean>
+    <bean id="examDAO" class="com.daodao.dao.ExamDAO" parent="abstractDAO"></bean>
+    <bean id="examWordDAO" class="com.daodao.dao.ExamWordDAO" parent="abstractDAO"></bean>
+    <bean id="historyExamWordDAO" class="com.daodao.dao.HistoryExamWordDAO" parent="abstractDAO"></bean>
+    
+    <bean id="testerService" class="com.daodao.service.TesterService"></bean>
     
     <bean id="databaseInit" class="com.daodao.tools.DatabaseInit"></bean>
 </beans>
