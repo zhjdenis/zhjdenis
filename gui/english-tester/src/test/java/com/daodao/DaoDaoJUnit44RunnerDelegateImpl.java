@@ -1,8 +1,12 @@
+/**
+ * 下午6:03:27
+ */
 package com.daodao;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,39 +16,92 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import junit.framework.TestCase;
+
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.junit.internal.runners.InitializationError;
-import org.junit.internal.runners.JUnit4ClassRunner;
-import org.junit.internal.runners.MethodRoadie;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.mockito.MockitoAnnotations;
+import org.powermock.core.spi.PowerMockTestListener;
+import org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl;
 
 /**
- * @author hzhou
+ * @author zhjdenis
  * 
  */
-public class DaoDaoDBTestRunner extends JUnit4ClassRunner
+public class DaoDaoJUnit44RunnerDelegateImpl extends PowerMockJUnit44RunnerDelegateImpl
 {
 
-    protected Map<String, Connection> connections;
+    protected Map<String, Connection> connections = new HashMap<String, Connection>();
 
-    /**
-     * @param klass
-     * @throws InitializationError
-     */
-    public DaoDaoDBTestRunner(Class<?> klass) throws InitializationError
+    public DaoDaoJUnit44RunnerDelegateImpl(Class<?> klass, String[] methodsToRun, PowerMockTestListener[] listeners)
+            throws InitializationError
+    {
+        super(klass, methodsToRun, listeners);
+        initConfig(klass);
+    }
+
+    public DaoDaoJUnit44RunnerDelegateImpl(Class<?> klass, String[] methodsToRun) throws InitializationError
+    {
+        super(klass, methodsToRun);
+        initConfig(klass);
+    }
+
+    public DaoDaoJUnit44RunnerDelegateImpl(Class<?> klass) throws InitializationError
     {
         super(klass);
-        connections = new HashMap<String, Connection>();
-        DaoDaoDBConfigLocation config = klass.getAnnotation(DaoDaoDBConfigLocation.class);
-        if (config != null)
+        initConfig(klass);
+    }
+
+    @Override
+    protected void invokeTestMethod(final Method method, RunNotifier notifier)
+    {
+        Description description = methodDescription(method);
+        final Object testInstance;
+        try
         {
-            initConfig(config.locations());
+            testInstance = createTest();
+            MockitoAnnotations.initMocks(testInstance);
+            injectConnection(method, testInstance);
+            injectData(method, testInstance);
         }
+        catch (InvocationTargetException e)
+        {
+            testAborted(notifier, description, e.getTargetException());
+            return;
+        }
+        catch (Exception e)
+        {
+            testAborted(notifier, description, e);
+            return;
+        }
+
+        // Check if we extend from TestClass, in that case we must run the
+        // setUp
+        // and tearDown methods.
+        final boolean extendsFromTestCase = TestCase.class.isAssignableFrom(getTestClass()) ? true : false;
+
+        final TestMethod testMethod = wrapMethod(method);
+        createPowerMockRunner(testInstance, testMethod, notifier, description, extendsFromTestCase).run();
+    }
+
+    /**
+     * print error message
+     * 
+     * @param notifier
+     * @param description
+     * @param e
+     */
+    protected void testAborted(RunNotifier notifier, Description description, Throwable e)
+    {
+        notifier.fireTestStarted(description);
+        notifier.fireTestFailure(new Failure(description, e));
+        notifier.fireTestFinished(description);
     }
 
     protected void injectData(Method method, Object targetObj) throws Exception
@@ -65,7 +122,8 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
             return;
         }
         Field connField = lookupField(targetClass, "conn");
-        if(connField == null) {
+        if (connField == null)
+        {
             throw new DaoDaoDBTestException(
                     "Your class should contain a field named 'conn' type in java.sql.Connection");
         }
@@ -73,22 +131,25 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
         {
             connField.setAccessible(true);
         }
-       Connection conn = (Connection) connField.get(targetObj);
-       String[] dsLocations = dsAnnotation.locations();
-       for(String dsLocation : dsLocations) {
-          IDataSet ds = new FlatXmlDataSetBuilder().build(this.getClass().getClassLoader().getResource(dsLocation));
-          dsAnnotation.operation().getOp().execute(new DatabaseConnection(conn), ds);
-       }
+        Connection conn = (Connection) connField.get(targetObj);
+        String[] dsLocations = dsAnnotation.locations();
+        for (String dsLocation : dsLocations)
+        {
+            IDataSet ds = new FlatXmlDataSetBuilder().build(this.getClass().getClassLoader().getResource(dsLocation));
+            dsAnnotation.operation().getOp().execute(new DatabaseConnection(conn), ds);
+        }
     }
-    
+
     /**
-     * find the declare field(include heritage field) in object by field name, 
+     * find the declare field(include heritage field) in object by field name,
+     * 
      * @param targetObj
      * @param fieldName
      * @return
      * @throws Exception
      */
-    protected final Field lookupField(Class targetClass, String fieldName) {
+    protected Field lookupField(Class targetClass, String fieldName)
+    {
         Field[] fields = targetClass.getDeclaredFields();
         Field connField = null;
         for (Field field : fields)
@@ -155,7 +216,8 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
         else
         {
             Field connField = lookupField(targetClass, "conn");
-            if(connField == null) {
+            if (connField == null)
+            {
                 throw new DaoDaoDBTestException(
                         "Your class should contain a field named 'conn' type in java.sql.Connection");
             }
@@ -163,43 +225,10 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
             {
                 connField.setAccessible(true);
             }
-            //erase the previous data
+            // erase the previous data
             connections.get(conKey).rollback();
             connField.set(targetObj, connections.get(conKey));
         }
-    }
-
-    @Override
-    protected void invokeTestMethod(Method method, RunNotifier notifier)
-    {
-        Description description = methodDescription(method);
-        try
-        {
-            Object targetObj = createTest();
-            injectConnection(method, targetObj);
-            injectData(method, targetObj);
-            TestMethod testMethod = wrapMethod(method);
-            new MethodRoadie(targetObj, testMethod, notifier, description).run();
-        }
-        catch (Exception e)
-        {
-            testAborted(notifier, description, e);
-        }
-
-    }
-
-    /**
-     * print error message
-     * 
-     * @param notifier
-     * @param description
-     * @param e
-     */
-    protected void testAborted(RunNotifier notifier, Description description, Throwable e)
-    {
-        notifier.fireTestStarted(description);
-        notifier.fireTestFailure(new Failure(description, e));
-        notifier.fireTestFinished(description);
     }
 
     /**
@@ -207,10 +236,17 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
      * 
      * @param configLocations
      */
-    protected void initConfig(String[] configLocations)
+    protected void initConfig(Class klass)
     {
+        
+        DaoDaoDBConfigLocation configAnnotation = (DaoDaoDBConfigLocation) klass
+                .getAnnotation(DaoDaoDBConfigLocation.class);
+        if(configAnnotation == null) {
+            return;
+        }
+        String[] configLoactions = configAnnotation.locations();
         Properties prop = new Properties();
-        for (String config : configLocations)
+        for (String config : configLoactions)
         {
             try
             {
@@ -264,16 +300,4 @@ public class DaoDaoDBTestRunner extends JUnit4ClassRunner
         }
     }
 
-    public static void main(String[] args)
-    {
-        try
-        {
-            new DaoDaoDBTestRunner(DaoDaoTest.class);
-        }
-        catch (InitializationError e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 }

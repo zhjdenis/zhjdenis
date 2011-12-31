@@ -85,5 +85,27 @@
   		<artifactId>dbunit</artifactId>
   		<version>2.4.8</version>
   	</dependency>
+  	<dependency>
+  		<groupId>org.powermock</groupId>
+  		<artifactId>powermock</artifactId>
+  		<version>1.4.10</version>
+  		<type>pom</type>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.powermock</groupId>
+  		<artifactId>powermock-mockito-release-full</artifactId>
+  		<version>1.4.10</version>
+  		<classifier>full</classifier>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.powermock</groupId>
+  		<artifactId>powermock-module-junit4-rule</artifactId>
+  		<version>1.4.10</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.powermock</groupId>
+  		<artifactId>powermock-classloading-objenesis</artifactId>
+  		<version>1.4.10</version>
+  	</dependency>
   </dependencies>
 </project>
