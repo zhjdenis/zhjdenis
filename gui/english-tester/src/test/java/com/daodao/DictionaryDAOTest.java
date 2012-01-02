@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.greaterThan;
 
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class DictionaryDAOTest {
 	}
 
 	@Test
-	public void findNextRound() {
+	public void testFindNextRound() {
 		List<DictionaryDO> data = dictionaryDAO.findByFields(null, 0, 5);
 		for (DictionaryDO d : data) {
 			System.out.println(d.getId() + "\t" + d.getEn() + "\t" + d.getZh());
@@ -48,6 +49,18 @@ public class DictionaryDAOTest {
 		for (DictionaryDO d : data) {
 			System.out.println(d.getId() + "\t" + d.getEn() + "\t" + d.getZh());
 		}
+	}
+
+	@Test
+	public void testDeleteById() {
+		long total = dictionaryDAO.countAll();
+		DictionaryDO a = new DictionaryDO();
+		a.setEn("test1");
+		Long id = dictionaryDAO.saveEntity(a);
+		assertThat(id, greaterThan(0l));
+		Assert.assertEquals(total + 1, dictionaryDAO.countAll());
+		dictionaryDAO.deleteById(id);
+		Assert.assertEquals(total, dictionaryDAO.countAll());
 	}
 
 }

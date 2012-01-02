@@ -30,6 +30,10 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 		return result;
 	}
 
+	public void updateEntity(V entity) {
+		getHibernateTemplate().update(entity);
+	}
+
 	public List<V> findByIds(List<K> ids) {
 		if (ids == null || ids.size() == 0) {
 			return null;
@@ -46,6 +50,11 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 		return getHibernateTemplate().find(hql);
 	}
 
+	public long countAll() {
+		return (Long) getHibernateTemplate().find(
+				"select count(*) from " + getTableName()).get(0);
+	}
+
 	public V findById(K id) {
 		if (id == null) {
 			return null;
@@ -57,19 +66,6 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 			return null;
 		}
 		return temp.get(0);
-	}
-
-	public List<V> findByFields(Map<String, Object> fields) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("select model from " + getTableName()
-				+ " model where 1=1 ");
-		if (fields != null && fields.size() > 0) {
-			for (String key : fields.keySet()) {
-				builder.append(" and model." + key + "=?");
-			}
-		}
-		builder.append(" order by id");
-		return getHibernateTemplate().find(builder.toString(), fields.values());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -85,7 +81,7 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 								+ " model where 1=1 ");
 						if (fields != null && fields.size() > 0) {
 							for (String key : fields.keySet()) {
-								builder.append(" and model." + key + "=?");
+								builder.append(" and model." + key + "=:" + key);
 							}
 						}
 						builder.append(" order by id");
@@ -131,5 +127,13 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 		}
 		builder.append(")");
 		return getHibernateTemplate().bulkUpdate(builder.toString());
+	}
+
+	public int deleteById(K id) {
+		if (id == null) {
+			return 0;
+		}
+		return getHibernateTemplate().bulkUpdate(
+				"delete from " + getTableName() + " where id=" + id);
 	}
 }

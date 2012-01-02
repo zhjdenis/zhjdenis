@@ -6,7 +6,7 @@ public class HistoryExamWordDAO extends AbstractDAO<Long, HistoryExamWordDO> {
 
 	@Override
 	protected String getTableName() {
-		return HistoryExamWordDAO.class.getName();
+		return HistoryExamWordDO.class.getName();
 	}
 
 }

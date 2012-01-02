@@ -7,7 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -24,11 +26,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.daodao.model.ExamWordDO;
+import com.daodao.other.Constants;
 import com.daodao.service.TesterService;
 
-public class GUIEntrance {
+public class GUIEntrance implements ActionListener {
 
-	private List<ExamWordDO> questions;
+	private Map<Integer, ExamWordDO> questionMap;
 	private TesterService testerService;
 	private JFrame frmEnglishTester;
 	private JTextField qOneAnswer;
@@ -45,6 +48,9 @@ public class GUIEntrance {
 	private JLabel qThreeStatus;
 	private JLabel qFourStatus;
 	private JTextField qFiveAnswer;
+	private JButton nextButton;
+	private JButton completeButton;
+	private NewRoundDialog newRoundDialog;
 
 	/**
 	 * Launch the application.
@@ -70,12 +76,20 @@ public class GUIEntrance {
 	public GUIEntrance() {
 		initializeData();
 		initializeGUI();
+		initializeDialogs();
 	}
 
 	private void initializeData() {
+		questionMap = new LinkedHashMap<>();
 		ApplicationContext context = new ClassPathXmlApplicationContext(
 				"applicationContext.xml");
 		testerService = (TesterService) context.getBean("testerService");
+
+	}
+
+	private void initializeDialogs() {
+		newRoundDialog = new NewRoundDialog(this);
+		newRoundDialog.setModal(true);
 	}
 
 	/**
@@ -98,37 +112,21 @@ public class GUIEntrance {
 		menuBar.add(mnNewMenu);
 
 		JMenuItem continueButton = new JMenuItem("Continue...");
-		continueButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
+		continueButton.setActionCommand(Constants.ACTION_MAIN_CONTINUE);
+		continueButton.addActionListener(this);
 		mnNewMenu.add(continueButton);
 
 		JMenuItem restartButton = new JMenuItem("Restart");
-		restartButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-		});
+		restartButton.setActionCommand(Constants.ACTION_MAIN_RESTART);
+		restartButton.addActionListener(this);
 		mnNewMenu.add(restartButton);
 
 		JSeparator separator = new JSeparator();
 		mnNewMenu.add(separator);
 
 		JMenuItem exitButton = new JMenuItem("Exit");
-		exitButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.exit(-1);
-
-			}
-		});
+		exitButton.setActionCommand(Constants.ACTION_MAIN_EXIT);
+		exitButton.addActionListener(this);
 		mnNewMenu.add(exitButton);
 
 		JMenu mnNewMenu_1 = new JMenu("Statistic");
@@ -216,20 +214,15 @@ public class GUIEntrance {
 		frmEnglishTester.getContentPane().add(panel_2, BorderLayout.EAST);
 		panel_2.setLayout(new GridLayout(2, 1, 20, 20));
 
-		JButton completeButton = new JButton("Complete");
-		completeButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				checkAnswer();
-			}
-		});
+		completeButton = new JButton("Complete");
+		completeButton.setActionCommand(Constants.ACTION_MAIN_COMPLETE);
+		completeButton.addActionListener(this);
 		panel_2.add(completeButton);
 
-		JButton nextButton = new JButton("Next");
-		nextButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				nextRoundQuestion();
-			}
-		});
+		nextButton = new JButton("Next");
+		nextButton.setActionCommand(Constants.ACTION_MAIN_NEXT);
+		nextButton.addActionListener(this);
+		nextButton.setEnabled(false);
 		panel_2.add(nextButton);
 
 		JPanel panel_3 = new JPanel();
@@ -263,6 +256,58 @@ public class GUIEntrance {
 
 	private void nextRoundQuestion() {
 
+	}
+
+	private void exitSystem() {
+
+	}
+
+	private void continueLastTests() {
+
+	}
+
+	private void restartNewTest() {
+
+	}
+
+	private void showAlertDialog(String msg) {
+		JOptionPane.showMessageDialog(frmEnglishTester, msg, "提示信息",
+				JOptionPane.WARNING_MESSAGE);
+	}
+
+	private boolean showQuestionDialog(String msg) {
+		int result = JOptionPane.showConfirmDialog(frmEnglishTester, msg, "",
+				JOptionPane.YES_NO_OPTION);
+		return result == JOptionPane.YES_OPTION;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		switch (e.getActionCommand()) {
+		case Constants.ACTION_MAIN_COMPLETE:
+			checkAnswer();
+			break;
+		case Constants.ACTION_MAIN_CONTINUE:
+			continueLastTests();
+			break;
+		case Constants.ACTION_MAIN_EXIT:
+			exitSystem();
+			break;
+		case Constants.ACTION_MAIN_NEXT:
+			nextRoundQuestion();
+			break;
+		case Constants.ACTION_MAIN_RESTART:
+			newRoundDialog.setVisible(true);
+			break;
+		case Constants.ACTION_NEWROUND_CANCEL:
+			newRoundDialog.setVisible(false);
+			break;
+		case Constants.ACTION_NEWROUND_OK:
+			restartNewTest();
+			break;
+		default:
+			break;
+		}
 	}
 
 }

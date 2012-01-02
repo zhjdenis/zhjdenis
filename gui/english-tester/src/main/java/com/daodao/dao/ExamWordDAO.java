@@ -6,7 +6,7 @@ public class ExamWordDAO extends AbstractDAO<Long, ExamWordDO> {
 
 	@Override
 	protected String getTableName() {
-		return ExamWordDAO.class.getName();
+		return ExamWordDO.class.getName();
 	}
 
 }
