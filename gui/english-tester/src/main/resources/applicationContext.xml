@@ -12,7 +12,7 @@
 	</bean> -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"></property>
-		<property name="url" value="jdbc:derby:test_derbyDB;create=true"></property>
+		<property name="url" value="jdbc:derby:demo_derbyDB;create=true"></property>
 	</bean>
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">

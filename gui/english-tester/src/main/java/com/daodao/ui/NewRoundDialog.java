@@ -4,8 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,7 +24,10 @@ public class NewRoundDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JTextField descriptionTextField;
+	private JComboBox sourceComboBox;
 	private JSlider wordLevelSlider;
+	private JTextField wordNumTextField;
+	private Map<String, Integer> sourceCount;
 
 	/**
 	 * Launch the application.
@@ -39,7 +46,8 @@ public class NewRoundDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public NewRoundDialog(ActionListener listener) {
-		setBounds(100, 100, 429, 160);
+		setTitle("新建测试");
+		setBounds(100, 100, 429, 240);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -55,12 +63,33 @@ public class NewRoundDialog extends JDialog {
 			descriptionTextField.setColumns(10);
 		}
 		{
+			JLabel lblNewLabel_2 = new JLabel("词库选择");
+			lblNewLabel_2.setHorizontalAlignment(SwingConstants.RIGHT);
+			contentPanel.add(lblNewLabel_2);
+		}
+		{
+			sourceComboBox = new JComboBox();
+			contentPanel.add(sourceComboBox);
+		}
+		{
+			JLabel lblNewLabel_3 = new JLabel("测试单词的个数");
+			lblNewLabel_3.setHorizontalAlignment(SwingConstants.RIGHT);
+			contentPanel.add(lblNewLabel_3);
+		}
+		{
+			wordNumTextField = new JTextField();
+			contentPanel.add(wordNumTextField);
+			wordNumTextField.setColumns(10);
+		}
+		{
 			JLabel lblNewLabel_1 = new JLabel("选择测试单词等级");
 			lblNewLabel_1.setHorizontalAlignment(SwingConstants.RIGHT);
 			contentPanel.add(lblNewLabel_1);
 		}
 		{
 			wordLevelSlider = new JSlider();
+			wordLevelSlider.setMinorTickSpacing(1);
+			wordLevelSlider.setMajorTickSpacing(5);
 			wordLevelSlider.setPaintTicks(true);
 			wordLevelSlider.setPaintLabels(true);
 			wordLevelSlider.setMinimum(-10);
@@ -88,12 +117,47 @@ public class NewRoundDialog extends JDialog {
 		}
 	}
 
+	public void setSourceCount(Map<String, Integer> sourceCount) {
+		this.sourceCount = sourceCount;
+		sourceComboBox.removeAllItems();
+		for (String key : this.sourceCount.keySet()) {
+			sourceComboBox.addItem(key);
+		}
+		sourceComboBox.setSelectedIndex(0);
+		sourceComboBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				wordNumTextField.setText(e.getItem().toString());
+			}
+		});
+	}
+
 	public String getDescription() {
 		return descriptionTextField.getText().trim();
 	}
 
 	public int getWordLevel() {
 		return wordLevelSlider.getValue();
+	}
+
+	public int getWordCount() {
+		if (wordNumTextField.getText() == null
+				|| wordNumTextField.getText().trim().equals("")) {
+			return sourceCount.get(sourceComboBox.getSelectedItem().toString());
+		} else {
+			try {
+				return Integer.valueOf(wordNumTextField.getText().trim()) > sourceCount
+						.get(sourceComboBox.getSelectedItem().toString()) ? sourceCount
+						.get(sourceComboBox.getSelectedItem().toString())
+						: Integer.valueOf(wordNumTextField.getText().trim());
+			} catch (NumberFormatException e) {
+				return sourceCount.get(sourceComboBox.getSelectedItem()
+						.toString());
+			}
+		}
+	}
+
+	public String getSource() {
+		return sourceComboBox.getSelectedItem().toString();
 	}
 
 }

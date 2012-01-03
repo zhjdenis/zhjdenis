@@ -23,6 +23,7 @@ public class HistoryExamWordDO implements Serializable {
 	private String type;
 	private String source;
 	private Short status;
+	private Long wordId;
 	private Long examId;
 
 	@Id
@@ -88,6 +89,15 @@ public class HistoryExamWordDO implements Serializable {
 
 	public void setStatus(Short status) {
 		this.status = status;
+	}
+
+	@Column(name = "wordId")
+	public Long getWordId() {
+		return wordId;
+	}
+
+	public void setWordId(Long wordId) {
+		this.wordId = wordId;
 	}
 
 }

@@ -14,6 +14,6 @@ public class ExamDAO extends AbstractDAO<Long, ExamDO> {
 	public List<ExamDO> listRemainExams() {
 		return getHibernateTemplate().find(
 				"select model from " + getTableName()
-						+ " model where model.remain > 0");
+						+ " model where model.remain > 0 order by model.id");
 	}
 }

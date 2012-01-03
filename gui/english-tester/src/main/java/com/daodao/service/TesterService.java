@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,8 @@ public class TesterService {
 	private DictionaryDAO dictionaryDAO;
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public ExamDO startNewTest(String description) throws Exception {
+	public ExamDO startNewTest(int wordLevel, String description,
+			String source, int wordCount) throws Exception {
 		long start = System.currentTimeMillis();
 		ExamDO result = new ExamDO();
 		result.setCorrect(0);
@@ -55,20 +57,46 @@ public class TesterService {
 		int startPos = 0;
 		int totalSize = 0;
 		List<DictionaryDO> words = null;
-		while ((words = dictionaryDAO.copyWords(startPos, pageSize)) != null
-				&& words.size() > 0) {
-			totalSize += words.size();
+		Map<String, Object> param = new HashMap<>();
+		param.put("accurate", wordLevel);
+		param.put("source", source);
+		int potentialWordCount = dictionaryDAO.getCountByFields(param);
+		while ((words = dictionaryDAO.copyWords(param, startPos, pageSize)) != null
+				&& words.size() > 0 && totalSize <= wordCount) {
+
 			List<ExamWordDO> examWords = new ArrayList<ExamWordDO>();
-			for (DictionaryDO word : words) {
-				ExamWordDO examWord = new ExamWordDO();
-				examWord.setEn(word.getEn());
-				examWord.setExamId(result.getId());
-				examWord.setSource(word.getSource());
-				examWord.setType(word.getType());
-				examWord.setZh(word.getZh());
-				examWords.add(examWord);
+			if (potentialWordCount > wordCount) {// 为了随机获取单词
+				int resultSize = (int) (words.size() * (1.0 * wordCount / potentialWordCount)) + 1;
+				List<Integer> randomArray = generateRandomList(words.size(),
+						resultSize);
+				for (int index = 0; index < words.size(); index++) {
+					if (!randomArray.contains(index)) {
+						continue;
+					}
+					DictionaryDO word = words.get(index);
+					ExamWordDO examWord = new ExamWordDO();
+					examWord.setEn(word.getEn());
+					examWord.setExamId(result.getId());
+					examWord.setSource(word.getSource());
+					examWord.setType(word.getType());
+					examWord.setZh(word.getZh());
+					examWord.setWordId(word.getId());
+					examWords.add(examWord);
+				}
+			} else {// 候选单词不足，所以不需要随机
+				for (DictionaryDO word : words) {
+					ExamWordDO examWord = new ExamWordDO();
+					examWord.setEn(word.getEn());
+					examWord.setExamId(result.getId());
+					examWord.setSource(word.getSource());
+					examWord.setType(word.getType());
+					examWord.setZh(word.getZh());
+					examWord.setWordId(word.getId());
+					examWords.add(examWord);
+				}
 			}
 			List<Long> rids = examWordDAO.batchSaveEntities(examWords);
+			totalSize += examWords.size();
 			if (rids.size() != words.size()) {
 				throw new Exception(
 						"Error in copying words from dictionary to exam_word");
@@ -85,11 +113,17 @@ public class TesterService {
 	}
 
 	public List<ExamWordDO> resumeLastTest(Long examId) {
-		return examWordDAO.findByFields(null, 0, 5);
+		Map<String, Object> param = new HashMap<>();
+		param.put("examId", examId);
+		return examWordDAO.findByFields(param, 0, 5);
 	}
 
 	public List<ExamDO> listUncompletedExams() {
 		return examDAO.listRemainExams();
+	}
+
+	public ExamDO findExamById(Long examId) {
+		return examDAO.findById(examId);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -109,7 +143,7 @@ public class TesterService {
 			int wrongSize = 0;
 			for (ExamWordDO examWordDO : currentWord) {
 				DictionaryDO dictionaryDO = dictionaryDAO.findById(examWordDO
-						.getId());
+						.getWordId());
 				if (dictionaryDO == null) {
 					throw new Exception("Unmatched dictionary id:"
 							+ examWordDO.getId());
@@ -122,6 +156,7 @@ public class TesterService {
 				historyExamWordDO.setStatus(examWordDO.getStatus());
 				historyExamWordDO.setType(examWordDO.getType());
 				historyExamWordDO.setZh(examWordDO.getZh());
+				historyExamWordDO.setWordId(examWordDO.getWordId());
 				saveEntities.add(historyExamWordDO);
 				deleteIds.add(examWordDO.getId());
 				if (examWordDO.getStatus()
@@ -146,6 +181,31 @@ public class TesterService {
 			examDAO.updateEntity(exam);
 			return examWordDAO.findByFields(params, 0, 5);
 		}
+	}
+
+	private static List<Integer> generateRandomList(Integer range,
+			Integer resultSize) {
+		Random random = new Random(System.currentTimeMillis());
+		List<Integer> result = new ArrayList<Integer>();
+		List<Integer> allSeeds = new ArrayList<Integer>();
+		for (int index = 1; index <= range; index++) {
+			allSeeds.add(index);
+		}
+		while (result.size() < resultSize) {
+			int seedIndex = Math.abs(random.nextInt() % allSeeds.size());
+			result.add(allSeeds.get(seedIndex));
+			allSeeds.remove(seedIndex);
+		}
+		return result;
+	}
+
+	/**
+	 * 返回指定词库和词库单词数字的关系
+	 * 
+	 * @return
+	 */
+	public Map<String, Integer> getSourceCountMap() {
+		return dictionaryDAO.getSourceCountMap();
 	}
 
 	public ExamDAO getExamDAO() {
@@ -178,6 +238,17 @@ public class TesterService {
 
 	public void setDictionaryDAO(DictionaryDAO dictionaryDAO) {
 		this.dictionaryDAO = dictionaryDAO;
+	}
+
+	public static void main(String[] args) throws InterruptedException {
+		for (int times = 0; times < 10; times++) {
+			List<Integer> list = generateRandomList(100, 10);
+			for (Integer i : list) {
+				System.out.print(i + "\t");
+			}
+			System.out.println();
+			Thread.sleep(100);
+		}
 	}
 
 }

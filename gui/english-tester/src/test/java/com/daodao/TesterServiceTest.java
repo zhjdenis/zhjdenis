@@ -20,7 +20,8 @@ public class TesterServiceTest {
 	@Test
 	public void testStartNewTest() {
 		try {
-			ExamDO examDO = testerService.startNewTest("test");
+			ExamDO examDO = testerService.startNewTest(-10, "test", "IELTS",
+					10000);
 			Assert.assertNotNull(examDO);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

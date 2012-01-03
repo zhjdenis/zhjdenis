@@ -1,7 +1,10 @@
 package com.daodao.dao;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -17,7 +20,8 @@ public class DictionaryDAO extends AbstractDAO<Long, DictionaryDO> {
 		return DictionaryDO.class.getName();
 	}
 
-	public List<DictionaryDO> copyWords(final int startPos, final int pageSize) {
+	public List<DictionaryDO> copyWords(final Map<String, Object> param,
+			final int startPos, final int pageSize) {
 		return getHibernateTemplate().executeFind(
 				new HibernateCallback<List<DictionaryDO>>() {
 					@Override
@@ -25,14 +29,71 @@ public class DictionaryDAO extends AbstractDAO<Long, DictionaryDO> {
 							throws HibernateException, SQLException {
 						StringBuilder builder = new StringBuilder();
 						builder.append("select model from " + getTableName());
-						builder.append(" model order by id");
+						builder.append(" model where 1=1");
+						if (param != null || param.size() > 0) {
+							for (Entry<String, Object> entry : param.entrySet()) {
+								builder.append(" and model." + entry.getKey()
+										+ "=:" + entry.getKey());
+							}
+						}
+						builder.append(" order by id");
 						Query query = session.createQuery(builder.toString());
-
 						query.setFirstResult(startPos).setFetchSize(pageSize)
 								.setMaxResults(pageSize);
+						if (param != null || param.size() > 0) {
+							for (Entry<String, Object> entry : param.entrySet()) {
+								query.setParameter(entry.getKey(),
+										entry.getValue());
+							}
+						}
 						return query.list();
 					}
 				});
+	}
+
+	public Map<String, Integer> getSourceCountMap() {
+		return getHibernateTemplate().execute(new HibernateCallback() {
+
+			@Override
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				String sql = "select source, count(*) total from dictionary group by source";
+				List<Map<String, Object>> temp = session.createSQLQuery(sql)
+						.list();
+				Map<String, Integer> result = new HashMap<String, Integer>();
+				for (Map<String, Object> entry : temp) {
+					result.put(entry.get("source").toString(),
+							Integer.valueOf(entry.get("total").toString()));
+				}
+				return result;
+			}
+		});
+	}
+
+	public Integer getCountByFields(final Map<String, Object> fields) {
+		return getHibernateTemplate().execute(new HibernateCallback() {
+
+			@Override
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				StringBuilder builder = new StringBuilder();
+				builder.append("select count(*) from " + getTableName()
+						+ " model where 1=1 ");
+				if (fields != null && fields.size() > 0) {
+					for (String key : fields.keySet()) {
+						builder.append(" and model." + key + "=:" + key);
+					}
+				}
+				builder.append(" order by id");
+				Query query = session.createQuery(builder.toString());
+				if (fields != null && fields.size() > 0) {
+					for (Entry<String, Object> entry : fields.entrySet()) {
+						query.setParameter(entry.getKey(), entry.getValue());
+					}
+				}
+				return query.list().get(0);
+			}
+		});
 	}
 
 }

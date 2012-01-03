@@ -107,5 +107,10 @@
   		<artifactId>powermock-classloading-objenesis</artifactId>
   		<version>1.4.10</version>
   	</dependency>
+  	<dependency>
+  		<groupId>com.miglayout</groupId>
+  		<artifactId>miglayout-swing</artifactId>
+  		<version>4.2</version>
+  	</dependency>
   </dependencies>
 </project>

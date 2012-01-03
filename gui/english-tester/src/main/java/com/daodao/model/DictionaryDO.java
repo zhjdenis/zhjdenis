@@ -20,8 +20,9 @@ public class DictionaryDO implements Serializable {
 	private Long id;
 	private String en;
 	private String zh;
-	//词性
+	// 词性
 	private String type;
+	// 词库
 	private String source;
 	private Integer accurate;
 

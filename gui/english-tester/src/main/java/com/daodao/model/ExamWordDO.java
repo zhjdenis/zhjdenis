@@ -23,6 +23,7 @@ public class ExamWordDO implements Serializable {
 	private String type;
 	private String source;
 	private Short status;
+	private Long wordId;
 	private Long examId;
 
 	@Id
@@ -79,6 +80,15 @@ public class ExamWordDO implements Serializable {
 
 	public void setExamId(Long examId) {
 		this.examId = examId;
+	}
+
+	@Column(name = "wordId")
+	public Long getWordId() {
+		return wordId;
+	}
+
+	public void setWordId(Long wordId) {
+		this.wordId = wordId;
 	}
 
 	public Short getStatus() {
