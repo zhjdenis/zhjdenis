@@ -1,4 +1,4 @@
-package com.daodao;
+package com.daodao.ut;
 
 public class DaoDaoDBTestException extends Exception {
 

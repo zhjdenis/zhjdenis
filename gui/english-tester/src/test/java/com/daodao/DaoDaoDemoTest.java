@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 
 import com.daodao.service.SingletonPool;
+import com.daodao.ut.DaoDaoDBConnection;
+import com.daodao.ut.DaoDaoDBDataSet;
+import com.daodao.ut.DaoDaoTest;
 
 /**
  * @author zhjdenis

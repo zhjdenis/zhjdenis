@@ -1,7 +1,7 @@
 /**
  * 下午6:03:27
  */
-package com.daodao;
+package com.daodao.ut;
 
 import org.junit.internal.runners.InitializationError;
 import org.powermock.core.spi.PowerMockTestListener;

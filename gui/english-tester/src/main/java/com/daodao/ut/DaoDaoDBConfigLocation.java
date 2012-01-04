@@ -1,7 +1,7 @@
 /**
  * 下午5:33:22
  */
-package com.daodao;
+package com.daodao.ut;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

@@ -1,7 +1,7 @@
 /**
  * 下午3:09:16
  */
-package com.daodao;
+package com.daodao.ut;
 
 import org.dbunit.operation.DatabaseOperation;
 

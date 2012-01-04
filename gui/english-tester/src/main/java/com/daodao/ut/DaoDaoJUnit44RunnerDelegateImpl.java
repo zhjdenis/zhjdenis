@@ -1,7 +1,7 @@
 /**
  * 下午6:03:27
  */
-package com.daodao;
+package com.daodao.ut;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

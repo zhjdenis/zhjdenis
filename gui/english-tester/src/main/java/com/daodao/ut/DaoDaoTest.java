@@ -1,7 +1,7 @@
 /**
  * 下午5:32:20
  */
-package com.daodao;
+package com.daodao.ut;
 
 import java.sql.Connection;
 
