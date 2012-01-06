@@ -24,6 +24,7 @@ public class ContinueTestDialog extends JDialog {
 	private List<ExamDO> examDOs;
 	private ButtonGroup group;
 	private JPanel centerPanel;
+	private JButton okButton;
 
 	/**
 	 * Launch the application.
@@ -42,7 +43,6 @@ public class ContinueTestDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public ContinueTestDialog(ActionListener listener) {
-		setTitle("未完成的测试");
 		setBounds(100, 100, 600, 250);
 		getContentPane().setLayout(new BorderLayout());
 		{
@@ -50,8 +50,7 @@ public class ContinueTestDialog extends JDialog {
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				JButton okButton = new JButton("确认");
-				okButton.setActionCommand(Constants.ACTION_CONTINUETEST_OK);
+				okButton = new JButton("确认");
 				okButton.addActionListener(listener);
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
@@ -116,8 +115,10 @@ public class ContinueTestDialog extends JDialog {
 		}
 	}
 
-	public void setExams(List<ExamDO> examDOs) {
+	public void setExams(List<ExamDO> examDOs, String title, String confirmActionStr) {
 		this.examDOs = examDOs;
+		setTitle(title);
+		okButton.setActionCommand(confirmActionStr);
 		refreshPanel();
 	}
 

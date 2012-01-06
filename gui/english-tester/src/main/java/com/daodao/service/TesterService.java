@@ -57,7 +57,7 @@ public class TesterService {
 		int startPos = 0;
 		int totalSize = 0;
 		List<DictionaryDO> words = null;
-		Map<String, Object> param = new HashMap<>();
+		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("accurate", wordLevel);
 		param.put("source", source);
 		int potentialWordCount = dictionaryDAO.getCountByFields(param);
@@ -113,7 +113,7 @@ public class TesterService {
 	}
 
 	public List<ExamWordDO> resumeLastTest(Long examId) {
-		Map<String, Object> param = new HashMap<>();
+		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("examId", examId);
 		return examWordDAO.findByFields(param, 0, 5);
 	}
