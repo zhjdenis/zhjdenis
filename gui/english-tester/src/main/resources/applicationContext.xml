@@ -32,6 +32,7 @@
 				</prop>
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
 				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.connection.autocommit">false</prop>
 			</props>
 		</property>
 	</bean>
@@ -52,5 +53,5 @@
     
     <bean id="testerService" class="com.daodao.service.TesterService"></bean>
     
-    <bean id="databaseInit" class="com.daodao.tools.DatabaseInit"></bean>
+    <!-- <bean id="databaseInit" class="com.daodao.tools.DatabaseInit"></bean> -->
 </beans>

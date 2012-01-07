@@ -70,7 +70,8 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<V> findByFields(final Map<String, Object> fields,
-			final int startPos, final int pageSize) {
+			final Map<String, String> order, final int startPos,
+			final int pageSize) {
 		return getHibernateTemplate().executeFind(
 				new HibernateCallback<List<V>>() {
 					@Override
@@ -84,7 +85,23 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 								builder.append(" and model." + key + "=:" + key);
 							}
 						}
-						builder.append(" order by id");
+						if (order != null && order.size() > 0) {
+							boolean header = true;
+							for (Entry<String, String> entry : order.entrySet()) {
+								if (header) {
+									builder.append(" order by "
+											+ entry.getKey() + " "
+											+ entry.getValue());
+									header = false;
+								} else {
+									builder.append(" ," + entry.getKey() + " "
+											+ entry.getValue());
+								}
+							}
+						} else {
+							builder.append(" order by id");
+						}
+
 						Query query = session.createQuery(builder.toString());
 						if (fields != null && fields.size() > 0) {
 							for (Entry<String, Object> entry : fields
@@ -93,12 +110,41 @@ public abstract class AbstractDAO<K extends Serializable, V extends Serializable
 										entry.getValue());
 							}
 						}
-						query.setFirstResult(startPos).setFetchSize(pageSize)
-								.setMaxResults(pageSize);
+						if (startPos != -1 && pageSize != -1) {
+							query.setFirstResult(startPos)
+									.setFetchSize(pageSize)
+									.setMaxResults(pageSize);
+						}
 						return query.list();
 					}
 				});
 
+	}
+
+	public List<V> findByFields(final Map<String, Object> fields,
+			final int startPos, final int pageSize) {
+		return findByFields(fields, null, startPos, pageSize);
+	}
+
+	public List<V> findByFields(final Map<String, Object> fields) {
+		return findByFields(fields, null, -1, -1);
+	}
+
+	public List<V> findAll() {
+		return findByFields(null, null, -1, -1);
+	}
+
+	public List<V> findAll(Map<String, String> order) {
+		return findByFields(null, order, -1, -1);
+	}
+
+	public List<V> findAll(final int startPos, final int pageSize) {
+		return findByFields(null, null, startPos, pageSize);
+	}
+
+	public List<V> findAll(Map<String, String> order, final int startPos,
+			final int pageSize) {
+		return findByFields(null, order, startPos, pageSize);
 	}
 
 	public int updateFieldById(K id, Map<String, Object> fields) {

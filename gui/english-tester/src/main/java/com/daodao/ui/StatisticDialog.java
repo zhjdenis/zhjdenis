@@ -3,6 +3,8 @@ package com.daodao.ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -13,16 +15,21 @@ import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import com.daodao.model.HistoryExamWordDO;
+import com.daodao.other.Constants;
+
 public class StatisticDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
+	private JPanel rightPanel;
+	private JPanel leftPanel;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		try {
-			StatisticDialog dialog = new StatisticDialog();
+			StatisticDialog dialog = new StatisticDialog(null);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -33,7 +40,7 @@ public class StatisticDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public StatisticDialog() {
+	public StatisticDialog(ActionListener listener) {
 		setTitle("测试统计");
 		setBounds(100, 100, 500, 400);
 		getContentPane().setLayout(new BorderLayout());
@@ -52,17 +59,10 @@ public class StatisticDialog extends JDialog {
 						null, null));
 				splitPane.setLeftComponent(scrollPane);
 				{
-					JPanel panel = new JPanel();
-					scrollPane.setViewportView(panel);
-					panel.setLayout(new GridLayout(0, 2, 5, 5));
-					{
-						JLabel lblNewLabel = new JLabel("New label");
-						panel.add(lblNewLabel);
-					}
-					{
-						JLabel lblNewLabel_1 = new JLabel("New label");
-						panel.add(lblNewLabel_1);
-					}
+					leftPanel = new JPanel();
+					scrollPane.setViewportView(leftPanel);
+					leftPanel.setLayout(new GridLayout(0, 2, 5, 5));
+
 				}
 			}
 			{
@@ -72,17 +72,9 @@ public class StatisticDialog extends JDialog {
 						TitledBorder.TOP, null, null));
 				splitPane.setRightComponent(scrollPane);
 				{
-					JPanel panel = new JPanel();
-					scrollPane.setViewportView(panel);
-					panel.setLayout(new GridLayout(0, 2, 5, 5));
-					{
-						JLabel lblNewLabel_2 = new JLabel("New label");
-						panel.add(lblNewLabel_2);
-					}
-					{
-						JLabel lblNewLabel_3 = new JLabel("New label");
-						panel.add(lblNewLabel_3);
-					}
+					rightPanel = new JPanel();
+					scrollPane.setViewportView(rightPanel);
+					rightPanel.setLayout(new GridLayout(0, 2, 5, 5));
 				}
 			}
 		}
@@ -91,15 +83,11 @@ public class StatisticDialog extends JDialog {
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				JButton okButton = new JButton("OK");
-				okButton.setActionCommand("OK");
+				JButton okButton = new JButton("关闭");
+				okButton.setActionCommand(Constants.ACTION_STATISTIC_CLOSE);
+				okButton.addActionListener(listener);
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
-			}
-			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
 			}
 		}
 		{
@@ -123,6 +111,18 @@ public class StatisticDialog extends JDialog {
 				JLabel wrongLabel = new JLabel("错误:");
 				panel.add(wrongLabel);
 			}
+		}
+	}
+
+	public void setData(List<HistoryExamWordDO> correctWords,
+			List<HistoryExamWordDO> wrongWords) {
+		for (HistoryExamWordDO correctWord : correctWords) {
+			leftPanel.add(new JLabel(correctWord.getEn()));
+			leftPanel.add(new JLabel(correctWord.getZh()));
+		}
+		for (HistoryExamWordDO wrongWord : wrongWords) {
+			leftPanel.add(new JLabel(wrongWord.getEn()));
+			leftPanel.add(new JLabel(wrongWord.getZh()));
 		}
 	}
 

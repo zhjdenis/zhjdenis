@@ -58,12 +58,11 @@ public class DictionaryDAO extends AbstractDAO<Long, DictionaryDO> {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				String sql = "select source, count(*) total from dictionary group by source";
-				List<Map<String, Object>> temp = session.createSQLQuery(sql)
-						.list();
+				List<Object[]> temp = session.createSQLQuery(sql).list();
 				Map<String, Integer> result = new HashMap<String, Integer>();
-				for (Map<String, Object> entry : temp) {
-					result.put(entry.get("source").toString(),
-							Integer.valueOf(entry.get("total").toString()));
+				for (int index = 0; index < temp.size(); index++) {
+					result.put(temp.get(index)[0].toString(),
+							(Integer) temp.get(index)[1]);
 				}
 				return result;
 			}

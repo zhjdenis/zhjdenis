@@ -122,17 +122,45 @@ public class TesterService {
 		return examDAO.listRemainExams();
 	}
 
+	public List<ExamDO> listHistoryExams() {
+		Map<String, String> order = new HashMap<>();
+		order.put("id", "desc");
+		return examDAO.findAll(order);
+	}
+
 	public ExamDO findExamById(Long examId) {
 		return examDAO.findById(examId);
 	}
 
+	public List<HistoryExamWordDO> findWrongWords(Long examId) {
+		Map<String, Object> fields = new HashMap<>();
+		fields.put("status", Constants.WORD_STATUS_WRONG);
+		fields.put("examId", examId);
+		return historyExamWordDAO.findByFields(fields);
+	}
+
+	public List<HistoryExamWordDO> findCorrectWords(Long examId) {
+		Map<String, Object> fields = new HashMap<>();
+		fields.put("status", Constants.WORD_STATUS_CORRECT);
+		fields.put("examId", examId);
+		return historyExamWordDAO.findByFields(fields);
+	}
+
+	/**
+	 * 读取下一轮的五个词语
+	 * 
+	 * @param examId
+	 * @param currentWord
+	 * @return
+	 * @throws Exception
+	 */
 	@Transactional(propagation = Propagation.REQUIRED)
 	public List<ExamWordDO> nextRound(Long examId, List<ExamWordDO> currentWord)
 			throws Exception {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("examId", examId);
 		if (currentWord == null) {
-			return examWordDAO.findByFields(params, 0, 5);
+			return examWordDAO.findByFields(params, 0, Constants.SIZE_OF_ROUND);
 		} else {
 			ExamDO exam = examDAO.findById(examId);
 			List<HistoryExamWordDO> saveEntities = new ArrayList<HistoryExamWordDO>();
@@ -197,6 +225,11 @@ public class TesterService {
 			allSeeds.remove(seedIndex);
 		}
 		return result;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Long> batchSaveDictionaryWords(List<DictionaryDO> dictionaryDOs) {
+		return dictionaryDAO.batchSaveEntities(dictionaryDOs);
 	}
 
 	/**

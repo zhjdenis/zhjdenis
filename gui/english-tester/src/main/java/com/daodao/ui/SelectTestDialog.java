@@ -19,7 +19,7 @@ import javax.swing.SwingConstants;
 import com.daodao.model.ExamDO;
 import com.daodao.other.Constants;
 
-public class ContinueTestDialog extends JDialog {
+public class SelectTestDialog extends JDialog {
 
 	private List<ExamDO> examDOs;
 	private ButtonGroup group;
@@ -31,7 +31,7 @@ public class ContinueTestDialog extends JDialog {
 	 */
 	public static void main(String[] args) {
 		try {
-			ContinueTestDialog dialog = new ContinueTestDialog(null);
+			SelectTestDialog dialog = new SelectTestDialog(null);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -42,7 +42,7 @@ public class ContinueTestDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public ContinueTestDialog(ActionListener listener) {
+	public SelectTestDialog(ActionListener listener) {
 		setBounds(100, 100, 600, 250);
 		getContentPane().setLayout(new BorderLayout());
 		{
@@ -115,7 +115,8 @@ public class ContinueTestDialog extends JDialog {
 		}
 	}
 
-	public void setExams(List<ExamDO> examDOs, String title, String confirmActionStr) {
+	public void setExams(List<ExamDO> examDOs, String title,
+			String confirmActionStr) {
 		this.examDOs = examDOs;
 		setTitle(title);
 		okButton.setActionCommand(confirmActionStr);
@@ -131,7 +132,9 @@ public class ContinueTestDialog extends JDialog {
 			centerPanel.add(labelOne);
 			JLabel labelTwo = new JLabel(examDO.getDescription());
 			centerPanel.add(labelTwo);
-			JLabel labelThree = new JLabel("remain:" + examDO.getRemain());
+			JLabel labelThree = new JLabel("remain:" + examDO.getRemain()
+					+ "  correct:" + examDO.getCorrect() + "  wrong:"
+					+ examDO.getWrong());
 			centerPanel.add(labelThree);
 			JLabel labelFour = new JLabel(examDO.getOptions());
 			centerPanel.add(labelFour);

@@ -111,22 +111,22 @@ public class NewRoundDialog extends JDialog {
 			{
 				JButton cancelButton = new JButton("取消");
 				cancelButton.addActionListener(listener);
-				cancelButton.setActionCommand("Cancel");
+				cancelButton.setActionCommand(Constants.ACTION_NEWROUND_CANCEL);
 				buttonPane.add(cancelButton);
 			}
 		}
 	}
 
-	public void setSourceCount(Map<String, Integer> sourceCount) {
+	public void setSourceCount(final Map<String, Integer> sourceCount) {
 		this.sourceCount = sourceCount;
 		sourceComboBox.removeAllItems();
 		for (String key : this.sourceCount.keySet()) {
 			sourceComboBox.addItem(key);
 		}
-		sourceComboBox.setSelectedIndex(0);
 		sourceComboBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				wordNumTextField.setText(e.getItem().toString());
+				wordNumTextField.setText(sourceCount
+						.get(e.getItem().toString()).toString());
 			}
 		});
 	}
