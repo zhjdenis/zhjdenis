@@ -120,15 +120,25 @@ public class NewRoundDialog extends JDialog {
 	public void setSourceCount(final Map<String, Integer> sourceCount) {
 		this.sourceCount = sourceCount;
 		sourceComboBox.removeAllItems();
+		sourceComboBox.addItem("");
 		for (String key : this.sourceCount.keySet()) {
 			sourceComboBox.addItem(key);
 		}
 		sourceComboBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				wordNumTextField.setText(sourceCount
-						.get(e.getItem().toString()).toString());
+				if (sourceCount.containsKey(e.getItem().toString())) {
+					wordNumTextField.setText(sourceCount.get(
+							e.getItem().toString()).toString());
+				}
 			}
 		});
+	}
+
+	public void clear() {
+		descriptionTextField.setText("");
+		wordLevelSlider.setValue(0);
+		sourceComboBox.setSelectedIndex(0);
+		wordNumTextField.setText("");
 	}
 
 	public String getDescription() {

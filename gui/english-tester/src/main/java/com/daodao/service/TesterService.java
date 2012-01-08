@@ -24,6 +24,7 @@ import com.daodao.model.ExamDO;
 import com.daodao.model.ExamWordDO;
 import com.daodao.model.HistoryExamWordDO;
 import com.daodao.other.Constants;
+import com.daodao.ui.VocabularyDialog.VocabularySearchOption;
 
 /**
  * @author zhjdenis
@@ -42,9 +43,9 @@ public class TesterService {
 
 	private DictionaryDAO dictionaryDAO;
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { Exception.class })
 	public ExamDO startNewTest(int wordLevel, String description,
-			String source, int wordCount) throws Exception {
+			String source, int expectWordSize) throws Exception {
 		long start = System.currentTimeMillis();
 		ExamDO result = new ExamDO();
 		result.setCorrect(0);
@@ -60,13 +61,17 @@ public class TesterService {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("accurate", wordLevel);
 		param.put("source", source);
-		int potentialWordCount = dictionaryDAO.getCountByFields(param);
+		int potentialWordCount = dictionaryDAO.getCountByFields(param)
+				.intValue();
 		while ((words = dictionaryDAO.copyWords(param, startPos, pageSize)) != null
-				&& words.size() > 0 && totalSize <= wordCount) {
+				&& words.size() > 0 && totalSize <= expectWordSize) {
 
 			List<ExamWordDO> examWords = new ArrayList<ExamWordDO>();
-			if (potentialWordCount > wordCount) {// 为了随机获取单词
-				int resultSize = (int) (words.size() * (1.0 * wordCount / potentialWordCount)) + 1;
+			if (potentialWordCount > expectWordSize) {// 为了随机获取单词
+				int resultSize = (int) (words.size() * (1.0 * expectWordSize / potentialWordCount)) + 1;
+				if (words.size() < pageSize) { // 数据库最后一个分页，需要调整所需单词的数量
+					resultSize = expectWordSize - totalSize;
+				}
 				List<Integer> randomArray = generateRandomList(words.size(),
 						resultSize);
 				for (int index = 0; index < words.size(); index++) {
@@ -96,11 +101,7 @@ public class TesterService {
 				}
 			}
 			List<Long> rids = examWordDAO.batchSaveEntities(examWords);
-			totalSize += examWords.size();
-			if (rids.size() != words.size()) {
-				throw new Exception(
-						"Error in copying words from dictionary to exam_word");
-			}
+			totalSize += rids.size();
 			startPos += pageSize;
 		}
 		result.setRemain(totalSize);
@@ -110,6 +111,16 @@ public class TesterService {
 				+ result.getId());
 		System.out.println((System.currentTimeMillis() - start) / 1000);
 		return result;
+	}
+
+	public List<DictionaryDO> filterWords(VocabularySearchOption option) {
+		Map<String, Object> fields = new HashMap<>();
+		Map<String, String> order = new HashMap<>();
+		fields.put("source", option.source);
+		order.put(option.sort.getValue(), option.sort.getOrderType());
+		order.put("en", "asc");
+		return dictionaryDAO.findByFields(fields, order, option.startPos,
+				option.pageSize);
 	}
 
 	public List<ExamWordDO> resumeLastTest(Long examId) {
@@ -154,7 +165,7 @@ public class TesterService {
 	 * @return
 	 * @throws Exception
 	 */
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { Exception.class })
 	public List<ExamWordDO> nextRound(Long examId, List<ExamWordDO> currentWord)
 			throws Exception {
 		Map<String, Object> params = new HashMap<String, Object>();
@@ -227,7 +238,7 @@ public class TesterService {
 		return result;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = { Exception.class })
 	public List<Long> batchSaveDictionaryWords(List<DictionaryDO> dictionaryDOs) {
 		return dictionaryDAO.batchSaveEntities(dictionaryDOs);
 	}

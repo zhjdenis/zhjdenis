@@ -53,5 +53,5 @@
     
     <bean id="testerService" class="com.daodao.service.TesterService"></bean>
     
-    <!-- <bean id="databaseInit" class="com.daodao.tools.DatabaseInit"></bean> -->
+    <bean id="databaseInit" class="com.daodao.tools.DatabaseInit"></bean>
 </beans>

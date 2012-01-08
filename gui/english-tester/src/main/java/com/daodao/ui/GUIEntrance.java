@@ -6,12 +6,17 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.InputMethodListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -27,13 +32,16 @@ import javax.swing.border.EtchedBorder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.daodao.model.DictionaryDO;
 import com.daodao.model.ExamDO;
 import com.daodao.model.ExamWordDO;
 import com.daodao.model.HistoryExamWordDO;
 import com.daodao.other.Constants;
 import com.daodao.service.TesterService;
+import com.daodao.ui.VocabularyDialog.VocabularySearchOption;
 
-public class GUIEntrance implements ActionListener {
+public class GUIEntrance implements ActionListener, ItemListener,
+		InputMethodListener {
 
 	private List<ExamWordDO> examWordDOs;
 	private List<JLabel> allQuestions;
@@ -48,6 +56,7 @@ public class GUIEntrance implements ActionListener {
 	private NewRoundDialog newRoundDialog;
 	private SelectTestDialog selectTestDialog;
 	private StatisticDialog statisticDialog;
+	private VocabularyDialog vocabularyDialog;
 	private JLabel testTitle;
 	private JLabel timeLabel;
 	private JLabel passLabel;
@@ -105,6 +114,9 @@ public class GUIEntrance implements ActionListener {
 		selectTestDialog.setModal(true);
 		statisticDialog = new StatisticDialog(this);
 		statisticDialog.setModal(true);
+		vocabularyDialog = new VocabularyDialog(this);
+		vocabularyDialog.setModal(false);
+		vocabularyDialog.setSource(sourceCount);
 	}
 
 	/**
@@ -164,11 +176,17 @@ public class GUIEntrance implements ActionListener {
 		JMenu mnNewMenu_2 = new JMenu("Vocabulary");
 		menuBar.add(mnNewMenu_2);
 
-		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Import");
-		mnNewMenu_2.add(mntmNewMenuItem_1);
+		JMenuItem vocabularyImportButton = new JMenuItem("Import");
+		vocabularyImportButton.setEnabled(false);
+		vocabularyImportButton.addActionListener(this);
+		vocabularyImportButton
+				.setActionCommand(Constants.ACTION_VOCABULARY_IMPORT);
+		mnNewMenu_2.add(vocabularyImportButton);
 
-		JMenuItem listButton = new JMenuItem("List");
-		mnNewMenu_2.add(listButton);
+		JMenuItem vocabularyListButton = new JMenuItem("List");
+		vocabularyListButton.addActionListener(this);
+		vocabularyListButton.setActionCommand(Constants.ACTION_VOCABULARY_LIST);
+		mnNewMenu_2.add(vocabularyListButton);
 
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new GridLayout(5, 2, 5, 5));
@@ -222,6 +240,7 @@ public class GUIEntrance implements ActionListener {
 		panel_2.setLayout(new GridLayout(3, 1, 20, 20));
 
 		checkButton = new JButton("Check");
+		checkButton.setEnabled(false);
 		checkButton.setActionCommand(Constants.ACTION_MAIN_CHECK);
 		checkButton.addActionListener(this);
 		panel_2.add(checkButton);
@@ -265,7 +284,8 @@ public class GUIEntrance implements ActionListener {
 					|| answer.getText().trim().length() == 0) {
 				throw new Exception("所有答案都必须填写");
 			}
-			if (answer.getText().trim().equals(word.getEn())) {
+			if (answer.getText().trim().toLowerCase()
+					.equals(word.getEn().toLowerCase())) {
 				label.setForeground(Color.GREEN);
 				label.setText("正确");
 				word.setStatus(Constants.WORD_STATUS_CORRECT);
@@ -407,6 +427,7 @@ public class GUIEntrance implements ActionListener {
 				.findCorrectWords(examId);
 		List<HistoryExamWordDO> wrongWords = testerService
 				.findWrongWords(examId);
+		selectTestDialog.setVisible(false);
 		statisticDialog.setData(correctWords, wrongWords);
 		statisticDialog.setVisible(true);
 	}
@@ -450,6 +471,7 @@ public class GUIEntrance implements ActionListener {
 				nextRoundQuestion();
 				break;
 			case Constants.ACTION_MAIN_RESTART:
+				newRoundDialog.clear();
 				newRoundDialog.setVisible(true);
 				break;
 			case Constants.ACTION_NEWROUND_CANCEL:
@@ -483,6 +505,32 @@ public class GUIEntrance implements ActionListener {
 					showStatisticOfExam(examId);
 				}
 				break;
+			case Constants.ACTION_VOCABULARY_IMPORT:
+				break;
+			case Constants.ACTION_VOCABULARY_LIST:
+				vocabularyDialog.setVisible(true);
+				break;
+			case Constants.ACTION_VOCABULARY_CLOSE:
+				vocabularyDialog.setVisible(false);
+				break;
+			case Constants.ACTION_VOCABULARY_NEXT_PAGE:
+				if (vocabularyDialog.setStartPos(vocabularyDialog.getStartPos()
+						+ Constants.SIZE_OF_VOCABULARY)) {
+					VocabularySearchOption option = vocabularyDialog
+							.getOption();
+					option.startPos = vocabularyDialog.getStartPos();
+					filterVocabulary(option);
+				}
+				break;
+			case Constants.ACTION_VOCABULARY_PRE_PAGE:
+				if (vocabularyDialog.setStartPos(vocabularyDialog.getStartPos()
+						- Constants.SIZE_OF_VOCABULARY)) {
+					VocabularySearchOption option = vocabularyDialog
+							.getOption();
+					option.startPos = vocabularyDialog.getStartPos();
+					filterVocabulary(option);
+				}
+				break;
 			default:
 				break;
 			}
@@ -499,6 +547,45 @@ public class GUIEntrance implements ActionListener {
 				+ "s");
 		passLabel.setText(examDO.getCorrect().toString());
 		failLabel.setText(examDO.getWrong().toString());
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		JComboBox jcombobox = (JComboBox) e.getSource();
+		switch (jcombobox.getName()) {
+		case Constants.JCOMBOBOX_VOCABULARY_SOURCE:
+			if (!jcombobox.getSelectedItem().equals(e.getItem())) {
+				filterVocabulary(vocabularyDialog.getOption());
+			}
+			break;
+		case Constants.JCOMBOBOX_VOCABULARY_SORT:
+			if (!jcombobox.getSelectedItem().equals(e.getItem())) {
+				filterVocabulary(vocabularyDialog.getOption());
+			}
+			break;
+		default:
+			vocabularyDialog.setData(null);
+			break;
+		}
+	}
+
+	private void filterVocabulary(VocabularySearchOption option) {
+		if (option != null) {
+			List<DictionaryDO> words = testerService.filterWords(option);
+			vocabularyDialog.setData(words);
+		}
+	}
+
+	@Override
+	public void inputMethodTextChanged(InputMethodEvent event) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void caretPositionChanged(InputMethodEvent event) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

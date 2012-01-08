@@ -3,7 +3,9 @@ package com.daodao;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -61,6 +63,15 @@ public class DictionaryDAOTest {
 		Assert.assertEquals(total + 1, dictionaryDAO.countAll());
 		dictionaryDAO.deleteById(id);
 		Assert.assertEquals(total, dictionaryDAO.countAll());
+	}
+
+	@Test
+	public void testGetCountByFields() {
+		Map<String, Object> fields = new HashMap<String, Object>();
+		fields.put("accurate", 0);
+		fields.put("source", "IELTS");
+		Assert.assertEquals(4536, dictionaryDAO.getCountByFields(fields)
+				.intValue());
 	}
 
 }

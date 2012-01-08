@@ -32,8 +32,15 @@ public class DictionaryDAO extends AbstractDAO<Long, DictionaryDO> {
 						builder.append(" model where 1=1");
 						if (param != null || param.size() > 0) {
 							for (Entry<String, Object> entry : param.entrySet()) {
-								builder.append(" and model." + entry.getKey()
-										+ "=:" + entry.getKey());
+								if (entry.getKey().equals("accurate")) {
+									builder.append(" and model."
+											+ entry.getKey() + "<=:"
+											+ entry.getKey());
+								} else {
+									builder.append(" and model."
+											+ entry.getKey() + "=:"
+											+ entry.getKey());
+								}
 							}
 						}
 						builder.append(" order by id");
@@ -69,28 +76,31 @@ public class DictionaryDAO extends AbstractDAO<Long, DictionaryDO> {
 		});
 	}
 
-	public Integer getCountByFields(final Map<String, Object> fields) {
+	public Long getCountByFields(final Map<String, Object> fields) {
 		return getHibernateTemplate().execute(new HibernateCallback() {
 
 			@Override
-			public Object doInHibernate(Session session)
+			public Long doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				StringBuilder builder = new StringBuilder();
 				builder.append("select count(*) from " + getTableName()
 						+ " model where 1=1 ");
 				if (fields != null && fields.size() > 0) {
 					for (String key : fields.keySet()) {
-						builder.append(" and model." + key + "=:" + key);
+						if (key.endsWith("accurate")) {
+							builder.append(" and model." + key + "<=:" + key);
+						} else {
+							builder.append(" and model." + key + "=:" + key);
+						}
 					}
 				}
-				builder.append(" order by id");
 				Query query = session.createQuery(builder.toString());
 				if (fields != null && fields.size() > 0) {
 					for (Entry<String, Object> entry : fields.entrySet()) {
 						query.setParameter(entry.getKey(), entry.getValue());
 					}
 				}
-				return query.list().get(0);
+				return (Long) query.list().get(0);
 			}
 		});
 	}

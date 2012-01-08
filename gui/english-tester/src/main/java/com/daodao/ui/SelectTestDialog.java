@@ -43,7 +43,7 @@ public class SelectTestDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public SelectTestDialog(ActionListener listener) {
-		setBounds(100, 100, 600, 250);
+		setBounds(100, 100, 751, 250);
 		getContentPane().setLayout(new BorderLayout());
 		{
 			JPanel buttonPane = new JPanel();

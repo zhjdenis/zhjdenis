@@ -9,6 +9,7 @@ public class Constants {
 	public static final short WORD_STATUS_WRONG = 2;
 	public static final short WORD_STATUS_UNANSWER = 3;
 	public static final int SIZE_OF_ROUND = 5;
+	public static final int SIZE_OF_VOCABULARY = 20;
 
 	public static final String ACTION_NEWROUND_OK = "new_round_dialog_ok";
 	public static final String ACTION_NEWROUND_CANCEL = "new_round_dialog_cancel";
@@ -25,6 +26,14 @@ public class Constants {
 	public static final String ACTION_MAIN_NEXT = "main_next";
 	public static final String ACTION_MAIN_HISTORY = "main_history";
 	public static final String ACTION_MAIN_CURRENT = "main_current";
+	public static final String ACTION_VOCABULARY_CLOSE = "vocabulary_close";
+	public static final String ACTION_VOCABULARY_LIST = "vocabulary_list";
+	public static final String ACTION_VOCABULARY_IMPORT = "vocabulary_import";
+	public static final String ACTION_VOCABULARY_NEXT_PAGE = "vocabulary_next_page";
+	public static final String ACTION_VOCABULARY_PRE_PAGE = "vocabulary_pre_page";
+
+	public static final String JCOMBOBOX_VOCABULARY_SOURCE = "vocabulary_source";
+	public static final String JCOMBOBOX_VOCABULARY_SORT = "vocabulary_sort";
 
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm");

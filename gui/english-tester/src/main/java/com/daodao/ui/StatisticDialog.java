@@ -116,10 +116,12 @@ public class StatisticDialog extends JDialog {
 
 	public void setData(List<HistoryExamWordDO> correctWords,
 			List<HistoryExamWordDO> wrongWords) {
+		rightPanel.removeAll();
 		for (HistoryExamWordDO correctWord : correctWords) {
-			leftPanel.add(new JLabel(correctWord.getEn()));
-			leftPanel.add(new JLabel(correctWord.getZh()));
+			rightPanel.add(new JLabel(correctWord.getEn()));
+			rightPanel.add(new JLabel(correctWord.getZh()));
 		}
+		leftPanel.removeAll();
 		for (HistoryExamWordDO wrongWord : wrongWords) {
 			leftPanel.add(new JLabel(wrongWord.getEn()));
 			leftPanel.add(new JLabel(wrongWord.getZh()));
