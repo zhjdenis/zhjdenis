@@ -36,12 +36,6 @@ public class DictionaryDAOTest {
 	}
 
 	@Test
-	public void testFindById() {
-		DictionaryDO b = dictionaryDAO.findById(5L);
-		System.out.println(b.getEn());
-	}
-
-	@Test
 	public void testFindNextRound() {
 		List<DictionaryDO> data = dictionaryDAO.findByFields(null, 0, 5);
 		for (DictionaryDO d : data) {
