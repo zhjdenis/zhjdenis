@@ -114,13 +114,7 @@ public class TesterService {
 	}
 
 	public List<DictionaryDO> filterWords(VocabularySearchOption option) {
-		Map<String, Object> fields = new HashMap<>();
-		Map<String, String> order = new HashMap<>();
-		fields.put("source", option.source);
-		order.put(option.sort.getValue(), option.sort.getOrderType());
-		order.put("en", "asc");
-		return dictionaryDAO.findByFields(fields, order, option.startPos,
-				option.pageSize);
+		return dictionaryDAO.findSimilarWords(option);
 	}
 
 	public List<ExamWordDO> resumeLastTest(Long examId) {

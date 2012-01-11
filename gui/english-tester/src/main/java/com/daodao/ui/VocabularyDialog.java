@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
-import java.awt.event.InputMethodListener;
 import java.awt.event.ItemListener;
 import java.util.EventListener;
 import java.util.List;
@@ -19,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.CaretListener;
 
 import com.daodao.model.DictionaryDO;
 import com.daodao.other.Constants;
@@ -68,8 +68,7 @@ public class VocabularyDialog extends JDialog {
 			}
 			{
 				searchTextField = new JTextField();
-				searchTextField
-						.addInputMethodListener((InputMethodListener) listener);
+				searchTextField.addCaretListener((CaretListener) listener);
 				panel.add(searchTextField);
 				searchTextField.setColumns(10);
 			}
@@ -158,11 +157,12 @@ public class VocabularyDialog extends JDialog {
 	 * 获得对单词的过滤条件
 	 * 
 	 * @return
+	 * @throws Exception
 	 */
-	public VocabularySearchOption getOption() {
+	public VocabularySearchOption getOption() throws Exception {
 		if (sourceComboBox.getSelectedItem() == null
 				|| "".equals(sourceComboBox.getSelectedItem().toString().trim())) {
-			return null;
+			throw new Exception("请至少选择一本词典");
 		} else {
 			return new VocabularySearchOption(searchTextField.getText(),
 					sourceComboBox.getSelectedItem().toString(),
@@ -212,7 +212,7 @@ public class VocabularyDialog extends JDialog {
 
 		}
 
-		public String word;
+		public String word = "";
 		public String source;
 		public Sort sort;
 		public Integer startPos = 0;

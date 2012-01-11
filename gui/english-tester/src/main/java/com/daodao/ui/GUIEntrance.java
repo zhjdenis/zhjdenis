@@ -6,8 +6,6 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputMethodEvent;
-import java.awt.event.InputMethodListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -28,6 +26,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -40,8 +40,7 @@ import com.daodao.other.Constants;
 import com.daodao.service.TesterService;
 import com.daodao.ui.VocabularyDialog.VocabularySearchOption;
 
-public class GUIEntrance implements ActionListener, ItemListener,
-		InputMethodListener {
+public class GUIEntrance implements ActionListener, ItemListener, CaretListener {
 
 	private List<ExamWordDO> examWordDOs;
 	private List<JLabel> allQuestions;
@@ -555,12 +554,23 @@ public class GUIEntrance implements ActionListener, ItemListener,
 		switch (jcombobox.getName()) {
 		case Constants.JCOMBOBOX_VOCABULARY_SOURCE:
 			if (!jcombobox.getSelectedItem().equals(e.getItem())) {
-				filterVocabulary(vocabularyDialog.getOption());
+				try {
+					filterVocabulary(vocabularyDialog.getOption());
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					showAlertDialog(e1.getMessage());
+				}
 			}
 			break;
 		case Constants.JCOMBOBOX_VOCABULARY_SORT:
 			if (!jcombobox.getSelectedItem().equals(e.getItem())) {
-				filterVocabulary(vocabularyDialog.getOption());
+				try {
+					filterVocabulary(vocabularyDialog.getOption());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					showAlertDialog(e1.getMessage());
+				}
 			}
 			break;
 		default:
@@ -577,15 +587,16 @@ public class GUIEntrance implements ActionListener, ItemListener,
 	}
 
 	@Override
-	public void inputMethodTextChanged(InputMethodEvent event) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void caretPositionChanged(InputMethodEvent event) {
-		// TODO Auto-generated method stub
-
+	public void caretUpdate(CaretEvent e) {
+		try {
+			VocabularySearchOption option = vocabularyDialog.getOption();
+			List<DictionaryDO> words = testerService.filterWords(option);
+			vocabularyDialog.setData(words);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			showAlertDialog(e1.getMessage());
+		}
 	}
 
 }

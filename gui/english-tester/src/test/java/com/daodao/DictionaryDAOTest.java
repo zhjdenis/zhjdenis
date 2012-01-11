@@ -16,6 +16,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.daodao.dao.DictionaryDAO;
 import com.daodao.model.DictionaryDO;
+import com.daodao.ui.VocabularyDialog;
+import com.daodao.ui.VocabularyDialog.VocabularySearchOption;
+import com.daodao.ui.VocabularyDialog.VocabularySearchOption.Sort;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "../../applicationContext.xml" })
@@ -45,6 +48,14 @@ public class DictionaryDAOTest {
 		for (DictionaryDO d : data) {
 			System.out.println(d.getId() + "\t" + d.getEn() + "\t" + d.getZh());
 		}
+	}
+
+	@Test
+	public void testFindSimilarWord() {
+		VocabularySearchOption option = new VocabularyDialog.VocabularySearchOption(
+				"ab", "IELTS", Sort.ACCURATE);
+		List<DictionaryDO> entities = dictionaryDAO.findSimilarWords(option);
+		Assert.assertNotNull(entities);
 	}
 
 	@Test
