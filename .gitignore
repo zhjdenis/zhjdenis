@@ -2,3 +2,7 @@ gui/english-tester/target/test-classes/
 gui/english-tester/target/classes/
 gui/english-tester/target/
 gui/english-tester/*.class
+gui/english-tester/derby.log
+performance/target/*
+performance/*.class
+performance/*.settings/

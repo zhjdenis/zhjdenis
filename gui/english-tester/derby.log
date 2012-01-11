@@ -1,20 +1,10 @@
 ----------------------------------------------------------------
-Fri Dec 30 12:35:50 CST 2011:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.2.2 - (1181258): instance a816c00e-0134-8d40-a303-0000042feee0 
-on database directory /Users/zhjdenis/english-tester/gui/english-tester/derbyDB  with class loader sun.misc.Launcher$AppClassLoader@63c78e57 
-Loaded from file:/Users/zhjdenis/.m2/repository/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar
-java.vendor=Apple Inc.
-java.runtime.version=1.6.0_29-b11-402-10M3527
-user.dir=/Users/zhjdenis/english-tester/gui/english-tester
-derby.system.home=null
-Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Fri Dec 30 12:35:51 CST 2011:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.2.2 - (1181258): instance 601a400f-0134-8d40-a303-0000042feee0 
-on database directory /Users/zhjdenis/english-tester/gui/english-tester/test_derbyDB  with class loader sun.misc.Launcher$AppClassLoader@63c78e57 
-Loaded from file:/Users/zhjdenis/.m2/repository/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar
-java.vendor=Apple Inc.
-java.runtime.version=1.6.0_29-b11-402-10M3527
-user.dir=/Users/zhjdenis/english-tester/gui/english-tester
+Wed Jan 11 21:59:12 CST 2012:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.2.2 - (1181258): instance a816c00e-0134-cd10-b700-000002fcfff0 
+on database directory D:\git\english-tester\gui\english-tester\demo_derbyDB  with class loader sun.misc.Launcher$AppClassLoader@6fe99db4 
+Loaded from file:/C:/Users/zhjdenis/.m2/repository/org/apache/derby/derby/10.8.2.2/derby-10.8.2.2.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.7.0_01-b08
+user.dir=D:\git\english-tester\gui\english-tester
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
