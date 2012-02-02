@@ -11,11 +11,13 @@ import java.lang.annotation.Target;
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.TYPE})
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Inherited
 public @interface DaoDaoDBDataSet {
 
-    String[] locations();
-    DaoDaoDBDataSetOperation operation() default DaoDaoDBDataSetOperation.INSERT;
-}
+	String[] locations();
 
+	String connection();
+
+	DaoDaoDBDataSetOperation operation() default DaoDaoDBDataSetOperation.INSERT;
+}

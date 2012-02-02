@@ -1,15 +1,17 @@
 package com.daodao.example.db;
 
-import java.sql.Connection;
-
+import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import com.daodao.framework.BaseTest;
+import com.daodao.framework.annotation.DaoDaoDBDataSet;
 
+@PrepareForTest(value = {})
+public class DBTest extends BaseTest {
 
-@PrepareForTest(value={})
-public class DBTest extends BaseTest
-{
-    protected Connection conn;
-    
-    }
+	@Test
+	@DaoDaoDBDataSet(connection = "", locations = {})
+	public void testInsertDB() {
+
+	}
+}
