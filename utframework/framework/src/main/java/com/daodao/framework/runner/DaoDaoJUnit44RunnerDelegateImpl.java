@@ -167,7 +167,7 @@ public class DaoDaoJUnit44RunnerDelegateImpl extends
 		Field[] fields = targetClass.getDeclaredFields();
 		List<Field> rs = new ArrayList<Field>();
 		for (Field field : fields) {
-			if (field.getClass().isAssignableFrom(fieldType)) {
+			if (field.getType().isAssignableFrom(fieldType)) {
 				rs.add(field);
 			}
 		}
@@ -206,46 +206,31 @@ public class DaoDaoJUnit44RunnerDelegateImpl extends
 	 */
 	protected void injectConnection(Method method, Object targetObj)
 			throws SQLException, Exception {
-		Annotation[] allAnnotations = method.getAnnotations();
-		DaoDaoDBConnection dbAnnotation = null;
-		Class targetClass = targetObj.getClass();
-		for (Annotation annotation : allAnnotations) {
-			if (annotation instanceof DaoDaoDBConnection) {
-				dbAnnotation = (DaoDaoDBConnection) annotation;
-				break;
-			}
-		}
-		// try to get the default connect from class region
-		if (dbAnnotation == null) {
-			dbAnnotation = (DaoDaoDBConnection) targetClass
-					.getAnnotation(DaoDaoDBConnection.class);
-		}
-		if (dbAnnotation == null) {
-			return;
-		}
-		String conKey = dbAnnotation.connection();
-		if (!connections.containsKey(conKey) || connections.get(conKey) == null) {
-			throw new DaoDaoDBTestException(
-					"Can not find the configuration for connection name:"
-							+ conKey);
-		} else {
+	        Class targetClass = targetObj.getClass();
+	        Annotation defaultAnnotation = targetClass.getAnnotation(DaoDaoDBConnection.class);
 			List<Field> connFields = lookupField(targetClass, Connection.class);
 			for (Field connField : connFields) {
 				DaoDaoDBConnection specificAnnotation = connField
 						.getAnnotation(DaoDaoDBConnection.class);
+				if (!connField.isAccessible()) {
+				    connField.setAccessible(true);
+				}
 				if (specificAnnotation != null) {
+				    if(! connections.containsKey(specificAnnotation.connection())) {
+				        throw new Exception("You should define a connection with key:"+specificAnnotation.connection());
+				    }
+				    connections.get(specificAnnotation.connection()).rollback();
 					connField.set(targetObj,
 							connections.get(specificAnnotation.connection()));
-				} else {
-					if (!connField.isAccessible()) {
-						connField.setAccessible(true);
-					}
-					// erase the previous data
-					connections.get(conKey).rollback();
-					connField.set(targetObj, connections.get(conKey));
+				} else if(defaultAnnotation != null) {
+				    if(! connections.containsKey(((DaoDaoDBConnection)defaultAnnotation).connection())) {
+				        throw new Exception("You should define a connection with key:"+((DaoDaoDBConnection)defaultAnnotation).connection());
+				    }
+				    connections.get(((DaoDaoDBConnection)defaultAnnotation).connection()).rollback();
+				    connField.set(targetObj,
+				                  connections.get(((DaoDaoDBConnection)defaultAnnotation).connection()));
 				}
 			}
-		}
 	}
 
 	/**

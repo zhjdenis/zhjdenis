@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Target({ ElementType.FIELD,  ElementType.LOCAL_VARIABLE })
 @Inherited
 public @interface DaoDaoDBConnection {
 
